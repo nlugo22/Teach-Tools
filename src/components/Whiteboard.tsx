@@ -1,15 +1,19 @@
 import React from 'react'
 import Canvas from './Canvas'
 import { useEffect, useState, useRef } from 'react';
-import '../styles/Whiteboard.css'
+import WhiteboardControls from './WhiteboardControls';
 
 interface Props {
 }
 
 const Whiteboard = ({ }: Props) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [lineWidth, setLineWidth] = useState<number>(5);
+  const [scaledLineWidth, setScaledLineWidth] = useState<number>(0);
+  const [currentColor, setCurrentColor] = useState<string>('black');
+
 
   const resizeCanvas = () => {
     const canvas = canvasRef.current;
@@ -46,10 +50,9 @@ const Whiteboard = ({ }: Props) => {
     if (ctx) {
       const pos = getMousePosition(e);
 
-      // Scale the line width to adjust to the width being dynamically positioned 
-      const scaleX = canvas.width / canvas?.getBoundingClientRect().width;
-      const lineWidth = 5 * scaleX; // Adjust line width based on scaling factor
-      ctx.lineWidth = lineWidth; // set the current line width
+      updateLineWidth(canvas, ctx);
+      ctx.strokeStyle = currentColor;
+
       // begin drawing
       ctx.beginPath(); // start a new path on the canvas
       ctx.moveTo(startPoint.x, startPoint.y); // move the pen to the starting point
@@ -61,6 +64,13 @@ const Whiteboard = ({ }: Props) => {
 
   const stopDrawing = () => {
     setIsDrawing(false);
+  };
+
+  const updateLineWidth = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+    // Scale the line width to adjust to the width being dynamically positioned 
+    const scaleX = canvas.width / canvas?.getBoundingClientRect().width;
+    setScaledLineWidth(lineWidth * scaleX); // Adjust line width based on scaling factor
+    ctx.lineWidth = scaledLineWidth; // set the current line width
   };
 
   useEffect(() => { // useEffect runs after each render
@@ -78,21 +88,43 @@ const Whiteboard = ({ }: Props) => {
     return () => window.removeEventListener('resize', resizeCanvas);
   }, []);
 
+  /**************************************** 
+   *   Whiteboard control functionality   *
+   ****************************************/
+  const handleLineWidthChange = (width: number) => {
+    setLineWidth(width);
+  };
+
+  const handleLineColor = (color: string) => {
+    setCurrentColor(color);
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (canvas && ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
   return (
     <>
       <h1>Whiteboard</h1>
+      <WhiteboardControls
+        setLineWidth={handleLineWidthChange}
+        setLineColor={handleLineColor}
+        clearCanvas={clearCanvas}
+      />
       <div className="whiteboard-container">
         <Canvas
-          ref={canvasRef}
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
           onMouseLeave={stopDrawing}
-
         />
       </div>
     </>
   );
-}
+};
 
 export default Whiteboard

@@ -1,14 +1,15 @@
+import React from "react";
 import { forwardRef, MutableRefObject } from "react";
 import { useEffect, useRef } from "react";
 
 interface Props {
-  onMouseDown?: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void;
-  onMouseUp?: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void;
-  onMouseMove?: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void;
-  onMouseLeave?: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void;
+  onMouseDown?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+  onMouseUp?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+  onMouseMove?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+  onMouseLeave?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
 }
 
-const canvas = forwardRef<HTMLCanvasElement>(
+const canvas = forwardRef<HTMLCanvasElement, Props>(
   ({ onMouseDown, onMouseMove, onMouseUp, onMouseLeave }: Props, ref) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 

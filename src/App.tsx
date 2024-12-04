@@ -1,14 +1,14 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from './components/Navbar'
 import Whiteboard from './components/Whiteboard';
-import './styles/AppStyle.css'
+import './App.css'
 
 function App() {
   return (
     <div className="app-container">
       <Navbar />
       <div className="module-container">
-        <Whiteboard width={1000} height={500} />
+        <Whiteboard />
       </div>
     </div>
 
