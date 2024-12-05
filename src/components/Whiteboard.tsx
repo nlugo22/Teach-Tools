@@ -72,7 +72,7 @@ const Whiteboard = ({ }: Props) => {
 
   return (
     <>
-      <h1>Whiteboard</h1>
+      <h1 style={{border: "2px solid black" }} className=".h1">Whiteboard</h1>
       <WhiteboardControls
         setLineWidth={handleLineWidthChange}
         setLineColor={handleLineColor}
