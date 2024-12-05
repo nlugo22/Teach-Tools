@@ -1,6 +1,4 @@
-import React from "react";
-import { forwardRef, MutableRefObject } from "react";
-import { useEffect, useRef } from "react";
+import React, { forwardRef } from "react";
 
 interface Props {
   onMouseDown?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
@@ -9,39 +7,19 @@ interface Props {
   onMouseLeave?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
 }
 
-const canvas = forwardRef<HTMLCanvasElement, Props>(
-  ({ onMouseDown, onMouseMove, onMouseUp, onMouseLeave }: Props, ref) => {
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-    useEffect(() => {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-      }
-    }, []);
-
-    useEffect(() => {
-      if (ref) {
-        if (typeof ref === 'function') {
-          ref(canvasRef.current);
-        } else {
-          (ref as MutableRefObject<HTMLCanvasElement | null>).current = canvasRef.current;
-        }
-      }
-    }, [ref]);
+const Canvas = forwardRef<HTMLCanvasElement, Props>(
+  ({ onMouseDown, onMouseMove, onMouseUp, onMouseLeave }, ref) => {
 
     return (
       <canvas
-        ref={canvasRef}
+        ref={ref}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseLeave}
       ></canvas>
-    )
-  });
+    );
+  }
+);
 
-export default canvas
+export default Canvas;

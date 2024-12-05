@@ -32,7 +32,7 @@ const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas }: Props) 
 
       {/* Buttons for the pen color */}
       <button type="button" className='btn btn-sm' onClick={() => setLineColor('black')}>Black</button>
-      <button type="button" className='btn btn-sm' onClick={() => setLineColor('red')}>Redk</button>
+      <button type="button" className='btn btn-sm' onClick={() => setLineColor('red')}>Red</button>
       <button type="button" className='btn btn-sm' onClick={() => setLineColor('green')}>Green</button>
       <button type="button" className='btn btn-sm' onClick={() => setLineColor('blue')}>Blue</button>
 
