@@ -1,5 +1,3 @@
-import DarkModeToggle from "./DarkModeToggle"
-
 const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -9,10 +7,10 @@ const Navbar = () => {
           <a className="nav-link" href="#">Home</a>
         </li>
         <li className="nav-item">
-          <a className="nav-link" href="#">Features</a>
+          <a className="nav-link" href="#">Other</a>
         </li>
         <li className="nav-item">
-          <a className="nav-link" href="#">Pricing</a>
+          <a className="nav-link" href="#">About</a>
         </li>
       </ul>
     </nav>
