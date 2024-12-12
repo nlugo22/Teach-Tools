@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
-import Canvas from './Canvas'
 import { useState, useRef } from 'react';
+import Canvas from './Canvas'
 import WhiteboardControls from './WhiteboardControls';
+import '../styles/Whiteboard.css'
 
 interface Props {
 }
@@ -11,6 +12,7 @@ const Whiteboard = ({ }: Props) => {
   const [lastPos, setLastPos] = useState<{ x: number, y: number } | null>(null);
   const [lineWidth, setLineWidth] = useState<number>(5);
   const [currentColor, setCurrentColor] = useState<string>('black');
+  const [gridLines, setGridLines] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -52,6 +54,9 @@ const Whiteboard = ({ }: Props) => {
     setLastPos({ x: offsetX, y: offsetY });
   };
 
+  const getWidth = () => { if (canvasRef.current) canvasRef.current.width; }
+  const getHeight = () => { if (canvasRef.current) canvasRef.current.height; }
+
   /**************************************** 
    *   Whiteboard control functionality   *
    ****************************************/
@@ -70,15 +75,26 @@ const Whiteboard = ({ }: Props) => {
     }
   };
 
+  // const handleGridLines = (spacing: number) => {
+  //   const width = getWidth();
+  //   const height = getHeight();
+  //
+  //   if (canvasRef.current) {
+  //     const ctx = canvasRef.current.getContext('2d');
+  //     ctx?.clearRect(0, 0, width, height);
+  //   }
+  //
+  //
+  // };
+
   return (
-    <>
-      <h1 style={{border: "2px solid black" }} className=".h1">Whiteboard</h1>
+    <div className="whiteboard-container">
       <WhiteboardControls
         setLineWidth={handleLineWidthChange}
         setLineColor={handleLineColor}
         clearCanvas={clearCanvas}
       />
-      <div className="whiteboard-container">
+      <div className="whiteboard-canvas-container">
         <Canvas
           ref={canvasRef}
           onMouseDown={startDrawing}
@@ -87,7 +103,7 @@ const Whiteboard = ({ }: Props) => {
           onMouseLeave={stopDrawing}
         />
       </div>
-    </>
+    </div>
   );
 };
 

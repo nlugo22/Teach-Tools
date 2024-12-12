@@ -1,0 +1,19 @@
+.whiteboard-container {
+} 
+
+.whiteboard-header {
+  background-color: black;
+  color: white;
+  text-align: center;
+  margin: 0;
+}
+
+.whiteboard-controls {
+  padding: 0;
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  border-bottom: 2px solid black;
+  background-color: black;
+}
+

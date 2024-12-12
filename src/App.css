@@ -13,28 +13,3 @@
   flex: 0 0 auto;
 }
 
-.sidebar {
-  flex: 0 0 150px;
-  background-color: #36454F;
-  border-right: 1px solid #dee2e6;
-  overflow-y: auto;
-}
-
-.sidebar h2 {
-  color: white;
-  text-align: center;
-}
-
-.sidebar button {
-  width: 200px; /* Fixed width for all buttons */
-  text-align: left; /* Ensure text is centered */
-  background-color: #b0c4de;
-  white-space: nowrap; /* Prevent text from wrapping */
-  text-overflow: ellipsis; /* Add ellipsis for overflowing text */
-  transition: background-color 0.125s ease;
-}
-
-.sidebar button:hover {
-  background-color: #4682B4; /* Maroon hover color */
-  color: #ffffff; /* Change text color to white for contrast */
-}

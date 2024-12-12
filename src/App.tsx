@@ -10,7 +10,7 @@ function App() {
   const [activeModule, setActiveModule] = useState<string>("whiteboard");
 
   const loadModule = () => {
-    switch(activeModule) {
+    switch (activeModule) {
       case "whiteboard":
         return <Whiteboard />;
       case "random-selection":
@@ -25,10 +25,10 @@ function App() {
       <Navbar />
       <div className="content">
         <aside className="sidebar">
-          <Sidebar setActiveModule={setActiveModule}/>
+          <Sidebar setActiveModule={setActiveModule} />
         </aside>
         <main className="main-content">
-          { loadModule() } 
+          {loadModule()}
         </main>
       </div>
     </div>
