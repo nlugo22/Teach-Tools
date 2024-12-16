@@ -1,5 +1,6 @@
-.whiteboard-container {
-} 
+.whiteboard-controls-container {
+  width: 100vw;
+}
 
 .whiteboard-header {
   background-color: black;
@@ -9,11 +10,9 @@
 }
 
 .whiteboard-controls {
-  padding: 0;
   display: flex;
-  gap: 2px;
+  gap: 3px;
   align-items: flex-end;
   border-bottom: 2px solid black;
   background-color: black;
 }
-

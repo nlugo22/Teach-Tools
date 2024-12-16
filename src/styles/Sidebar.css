@@ -3,6 +3,7 @@
   background-color: #36454F;
   border-right: 1px solid #36454F;
   overflow-y: auto;
+  height: 100%;
 }
 
 .sidebar h2 {

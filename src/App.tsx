@@ -21,7 +21,7 @@ function App() {
   }
 
   return (
-    <div className="app-container">
+    <>
       <Navbar />
       <div className="content">
         <aside className="sidebar">
@@ -31,7 +31,7 @@ function App() {
           {loadModule()}
         </main>
       </div>
-    </div>
+    </>
 
   )
 }

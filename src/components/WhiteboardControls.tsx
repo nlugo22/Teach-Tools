@@ -1,14 +1,16 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import '../styles/Whiteboard.css'
 
 interface Props {
   setLineWidth: (width: number) => void;
   setLineColor: (color: string) => void;
   clearCanvas: () => void;
+  drawGridLines: (show: boolean) => void;
 }
 
-const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas }: Props) => {
+const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas, drawGridLines }: Props) => {
   const [selectedWidth, setSelectedWidth] = useState<number>(5);
+  const [gridLinesEnabled, setGridLinesEnabled] = useState(false);
 
   const handleLineWidthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const width = parseInt(e.target.value, 10); // select element stores data as string, need to convert it to base 10 number
@@ -16,8 +18,13 @@ const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas }: Props) 
     setLineWidth(width);
   };
 
+  const handleGridLineToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGridLinesEnabled(e.target.checked);
+    drawGridLines(e.target.checked);
+  }
+
   return (
-    <>
+    <div className="whiteboard-controls-container">
       <h1 className="whiteboard-header">Whiteboard</h1>
       <div className="whiteboard-controls">
         {/* Line width dropdown */}
@@ -41,8 +48,18 @@ const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas }: Props) 
 
         {/* Clear everything off */}
         <button type="button" className='btn btn-sm bg-light' onClick={() => clearCanvas()}>Clear</button>
+
+        {/* SHOW GRID LINES */}
+        <label style={{ color: "white", }}>
+          <input
+            type="checkbox"
+            checked={gridLinesEnabled}
+            onChange={handleGridLineToggle}
+          />
+          {gridLinesEnabled ? "Hide Grid" : "Show Grid"}
+        </label>
       </div>
-    </>
+    </div>
   )
 };
 

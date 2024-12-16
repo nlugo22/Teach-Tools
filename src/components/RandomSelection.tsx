@@ -50,7 +50,7 @@ const RandomSelection = ({ }: Props) => {
       <button onClick={handleFileUpload} disabled={!selectedFile}>Upload</button>
       <br />
 
-      {/* OPTIONS FOR THE ROSTER */}
+      {/* HIDE AND SHOW ROSTER */}
       {isRosterLoaded && (
         <label>
           <input
@@ -62,6 +62,7 @@ const RandomSelection = ({ }: Props) => {
         </label>
       )}
 
+      {/* ADD NUMBERS TO ROSTER */}
       {isRosterDisplayed && (
         <label>
           <input type="checkbox" checked={isNumbered} onChange={() => setIsNumbered((prev) => !prev)} />
