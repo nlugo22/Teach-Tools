@@ -9,3 +9,7 @@
   height: 100vh;
 }
 
+.main-content {
+  display: flex;
+  width: 100vw;
+}

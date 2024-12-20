@@ -1,10 +1,14 @@
 import React, { useState } from 'react'
+import '../styles/RandomSelection.css'
+import SpinNames from './SpinNames';
 
 interface Props {
 };
 
 const RandomSelection = ({ }: Props) => {
   const [roster, setRoster] = useState<string[]>([]);
+  const [selectedNames, setSelectedNames] = useState<string[]>([]);
+  // const [absent, setAbsent] = useState<string[]>([]);
   const [isNumbered, setIsNumbered] = useState(false);
   const [isRosterLoaded, setIsRosterLoaded] = useState(false);
   const [isRosterDisplayed, setIsRosterDisplayed] = useState(false);
@@ -20,7 +24,7 @@ const RandomSelection = ({ }: Props) => {
       window.alert('No file input!');
       return;
     }
-
+    {/* READ THE FILE AND SET THE NAMES INTO ROSTER */ }
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const fileContent = e.target?.result;
@@ -40,70 +44,100 @@ const RandomSelection = ({ }: Props) => {
     reader.readAsText(selectedFile);
     setIsRosterLoaded(true);
     setIsRosterDisplayed(true);
+  };
+
+  const handleRosterDisplayed = () => {
+    setIsRosterDisplayed((prevState) => !prevState);
   }
 
+  const pickRandomName = (count: number) => {
+    let remainingNames: string[] = roster.filter((name) => !selectedNames.includes(name));
+    let chosenNames: string[] = [];
+
+    for (let i = 0; i < count; i++) {
+      console.log(remainingNames);
+      if (remainingNames.length === 0) break;
+      const randIdx = Math.floor(Math.random() * remainingNames.length);
+      const currName = remainingNames[randIdx];
+      chosenNames.push(currName);
+      remainingNames = remainingNames.filter((name) => name !== currName);
+    }
+
+    setSelectedNames((prevNames: string[]) => [...prevNames, ...chosenNames]);
+  };
+
   return (
-    <div>
-      {/* UPLOAD FILE INPUT AND BUTTONS FOR STUDENT ROSTER */}
-      <h2>Upload Student Roster</h2>
-      <input type="file" accept=".txt" onChange={handleFileChange} />
-      <button onClick={handleFileUpload} disabled={!selectedFile}>Upload</button>
-      <br />
+    <>
+      {/* UPLOAD FILE INPUT */}
+      {!isRosterLoaded && (
+        <div className="upload-container">
+          <h2>Upload Student Roster</h2>
+          <input className="btn text-white" type="file" accept=".txt" onChange={handleFileChange} />
+          <button className="btn btn-primary text-white" onClick={handleFileUpload} disabled={!selectedFile}>Upload</button>
+        </div>)
+      }
 
-      {/* HIDE AND SHOW ROSTER */}
+      {/* MAIN CONTENT */}
       {isRosterLoaded && (
-        <label>
-          <input
-            type="checkbox"
-            checked={isRosterDisplayed}
-            onChange={(e) => setIsRosterDisplayed(e.target.checked)}
-          />
-          {isRosterDisplayed ? "Hide Roster" : "Show Roster"}
-        </label>
+        <div className="main-container">
+
+          {/* CONTROLS SECTION */}
+          <div className="random-select-controls">
+
+            {/* HIDE/SHOW ROSTER */}
+            <button className="btn btn-primary" onClick={handleRosterDisplayed}>
+              {isRosterDisplayed ? "Hide Roster" : "Show Roster"}
+            </button>
+
+            {/* ADD NUMBERS TO ROSTER */}
+            {isRosterDisplayed && (
+              <label>
+                <input type="checkbox" checked={isNumbered} onChange={() => setIsNumbered((prev) => !prev)} />
+                {isNumbered ? "Hide roster numbers" : "Show roster numbers"}
+              </label>
+            )}
+
+            <button className="btn btn-primary" onClick={() => pickRandomName(3)}>
+              Choose a name
+            </button>
+          </div>
+          {/* END CONTROLS SECTION */}
+
+          {/* ROSTER AND NAME SPINNER */}
+          <div className="random-container">
+
+            {/* ROSTER */}
+            {(roster.length > 0 && isRosterDisplayed) && (
+              <div className="roster-container">
+                <h2 className="roster-title">Roster:</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      {isNumbered && <th>#</th>}
+                      <th>Name</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {roster.map((name, index) => (
+                      <tr key={index} className="roster-rows">
+                        {isNumbered && <td>{index + 1}</td>}
+                        <td>{name}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* SPIN COMPONENT */}
+            <div className="spin-container">
+              <SpinNames selectedNames={selectedNames} />
+            </div>
+          </div >
+        </div >
       )}
+    </>
+  );
+}
 
-      {/* ADD NUMBERS TO ROSTER */}
-      {isRosterDisplayed && (
-        <label>
-          <input type="checkbox" checked={isNumbered} onChange={() => setIsNumbered((prev) => !prev)} />
-          {isNumbered ? "Hide roster numbers" : "Show roster numbers"}
-        </label>
-      )}
-
-      {/* DISPLAY THE LIST OF NAMES */}
-      <h2>Roster:</h2>
-      {!isRosterLoaded ? (
-        <p>No roster uploaded.</p>
-      ) : (
-      roster.length > 0 && isRosterDisplayed ? (
-        <table>
-          <thead>
-            <tr>
-              {isNumbered && <th>#</th>}
-              <th>Name</th>
-            </tr>
-          </thead>
-          <tbody>
-            {roster.map((name, index) => (
-              <tr
-                key={index}
-                style={{
-                  cursor: "pointer",
-                }}
-              >
-                {isNumbered && <td>{index + 1}</td>}
-                <td>{name}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) :
-       null
-      )}
-
-      {/* SPACE FOR FUTURE OPTIONS */}
-    </div>
-  )
-};
-
-export default RandomSelection
+export default RandomSelection;
