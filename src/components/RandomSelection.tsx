@@ -55,7 +55,6 @@ const RandomSelection = ({ }: Props) => {
     let chosenNames: string[] = [];
 
     for (let i = 0; i < count; i++) {
-      console.log(remainingNames);
       if (remainingNames.length === 0) break;
       const randIdx = Math.floor(Math.random() * remainingNames.length);
       const currName = remainingNames[randIdx];
@@ -65,6 +64,8 @@ const RandomSelection = ({ }: Props) => {
 
     setSelectedNames((prevNames: string[]) => [...prevNames, ...chosenNames]);
   };
+
+  const resetSelection = () => { setSelectedNames([]); }
 
   return (
     <>
@@ -97,8 +98,14 @@ const RandomSelection = ({ }: Props) => {
               </label>
             )}
 
+            {/* PICK RANDOM NAMES */}
             <button className="btn btn-primary" onClick={() => pickRandomName(3)}>
               Choose a name
+            </button>
+
+            {/* RESET SELECTED NAMES */}
+            <button className="btn btn-danger" onClick={() => resetSelection()}>
+              Reset
             </button>
           </div>
           {/* END CONTROLS SECTION */}

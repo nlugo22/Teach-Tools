@@ -8,7 +8,7 @@ interface Props {
 const SpinNames = ({ selectedNames }: Props) => {
 
   return (
-    <div>
+    <div className="outer-container">
       <div className="inner-container">
         {/* For loop here */}
         {selectedNames.map((name: string) =>

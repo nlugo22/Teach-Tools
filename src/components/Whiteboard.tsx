@@ -130,27 +130,29 @@ const Whiteboard = () => {
       />
 
       {/* Canvas for gridlines */}
-      <canvas
-        ref={gridCanvasRef}
-        style={{
-          position: 'absolute',
-          pointerEvents: 'none',
-          zIndex: 1,
-        }}
-      />
+      <div className="canvas-container">
+        <canvas
+          ref={gridCanvasRef}
+          style={{
+            position: 'absolute',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}
+        />
 
-      {/* Main drawing canvas */}
-      <canvas
-        ref={canvasRef}
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-        style={{
-          position: 'absolute',
-          zIndex: 2,
-        }}
-      />
+        {/* Main drawing canvas */}
+        <canvas
+          ref={canvasRef}
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          style={{
+            position: 'absolute',
+            zIndex: 2,
+          }}
+        />
+      </div>
     </div>
   );
 };
