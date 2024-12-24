@@ -1,17 +1,22 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import '../styles/RandomSelection.css'
 import SpinNames from './SpinNames';
+import Roster from './Roster'
+import RandomSelectControls from './RandomSelectControls';
 
 interface Props {
 };
 
 const RandomSelection = ({ }: Props) => {
   const [roster, setRoster] = useState<string[]>([]);
-  const [selectedNames, setSelectedNames] = useState<string[]>([]);
   // const [absent, setAbsent] = useState<string[]>([]);
+  const [numAvailableNames, setNumAvailableNames] = useState(0);
   const [isNumbered, setIsNumbered] = useState(false);
   const [isRosterLoaded, setIsRosterLoaded] = useState(false);
   const [isRosterDisplayed, setIsRosterDisplayed] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [spinnerCount, setSpinnerCount] = useState(1);
+  const [spinnerNames, setSpinnerNames] = useState<string[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,26 +51,58 @@ const RandomSelection = ({ }: Props) => {
     setIsRosterDisplayed(true);
   };
 
+  // set number of names after the roster is set
+  useEffect(() => {
+    setNumAvailableNames(roster.length);
+  }, [roster]);
+
   const handleRosterDisplayed = () => {
     setIsRosterDisplayed((prevState) => !prevState);
   }
 
-  const pickRandomName = (count: number) => {
-    let remainingNames: string[] = roster.filter((name) => !selectedNames.includes(name));
-    let chosenNames: string[] = [];
+  const handleIsNumbered = () => setIsNumbered((prev) => !prev);
 
-    for (let i = 0; i < count; i++) {
-      if (remainingNames.length === 0) break;
-      const randIdx = Math.floor(Math.random() * remainingNames.length);
-      const currName = remainingNames[randIdx];
-      chosenNames.push(currName);
-      remainingNames = remainingNames.filter((name) => name !== currName);
-    }
-
-    setSelectedNames((prevNames: string[]) => [...prevNames, ...chosenNames]);
+  {/* SPINNER LOGIC */ }
+  const handleSpinnerCountChange = (newCount: number) => {
+    if (isSpinning) return;
+    setSpinnerCount(newCount);
+    setSpinnerNames([]);
   };
 
-  const resetSelection = () => { setSelectedNames([]); }
+  const handleSpinning = () => {
+    if (isSpinning || roster.length < spinnerCount) return;
+
+    setIsSpinning(true);
+    const tempSpinnerNames = Array(spinnerCount).fill('');
+    const intervals: number[] = [];
+
+    // Start spinning all spinners
+    tempSpinnerNames.forEach((_, index) => {
+      let tempIdx = index % roster.length;
+      const interval = setInterval(() => {
+        tempSpinnerNames[index] = roster[tempIdx];
+        tempIdx = (tempIdx + 1) % roster.length;
+        setSpinnerNames([...tempSpinnerNames]);
+      }, 100);
+      intervals.push(interval);
+    });
+
+    // Stop all spinners
+    setTimeout(() => {
+      intervals.forEach(clearInterval);
+
+      const availableNames = [...roster];
+      const finalNames = [];
+
+      for (let i = 0; i < spinnerCount; i++) {
+        const randomIndex = Math.floor(Math.random() * availableNames.length);
+        finalNames.push(availableNames.splice(randomIndex, 1)[0]);
+      }
+
+      setSpinnerNames(finalNames);
+      setIsSpinning(false);
+    }, 3000);
+  };
 
   return (
     <>
@@ -77,37 +114,23 @@ const RandomSelection = ({ }: Props) => {
           <button className="btn btn-primary text-white" onClick={handleFileUpload} disabled={!selectedFile}>Upload</button>
         </div>)
       }
+       
 
       {/* MAIN CONTENT */}
       {isRosterLoaded && (
         <div className="main-container">
 
           {/* CONTROLS SECTION */}
-          <div className="random-select-controls">
-
-            {/* HIDE/SHOW ROSTER */}
-            <button className="btn btn-primary" onClick={handleRosterDisplayed}>
-              {isRosterDisplayed ? "Hide Roster" : "Show Roster"}
-            </button>
-
-            {/* ADD NUMBERS TO ROSTER */}
-            {isRosterDisplayed && (
-              <label>
-                <input type="checkbox" checked={isNumbered} onChange={() => setIsNumbered((prev) => !prev)} />
-                {isNumbered ? "Hide roster numbers" : "Show roster numbers"}
-              </label>
-            )}
-
-            {/* PICK RANDOM NAMES */}
-            <button className="btn btn-primary" onClick={() => pickRandomName(3)}>
-              Choose a name
-            </button>
-
-            {/* RESET SELECTED NAMES */}
-            <button className="btn btn-danger" onClick={() => resetSelection()}>
-              Reset
-            </button>
-          </div>
+          <RandomSelectControls 
+            numAvailableNames={numAvailableNames}
+            isRosterDisplayed={isRosterDisplayed}
+            isNumbered={isNumbered}
+            isSpinning={isSpinning}
+            handleSpinnercountChange={handleSpinnerCountChange}
+            handleRosterDisplayed={handleRosterDisplayed} 
+            handleIsNumbered={handleIsNumbered}
+            handleSpinning={handleSpinning}
+          />
           {/* END CONTROLS SECTION */}
 
           {/* ROSTER AND NAME SPINNER */}
@@ -115,30 +138,12 @@ const RandomSelection = ({ }: Props) => {
 
             {/* ROSTER */}
             {(roster.length > 0 && isRosterDisplayed) && (
-              <div className="roster-container">
-                <h2 className="roster-title">Roster:</h2>
-                <table>
-                  <thead>
-                    <tr>
-                      {isNumbered && <th>#</th>}
-                      <th>Name</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {roster.map((name, index) => (
-                      <tr key={index} className="roster-rows">
-                        {isNumbered && <td>{index + 1}</td>}
-                        <td>{name}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Roster isNumbered={isNumbered} roster={roster} />
             )}
 
             {/* SPIN COMPONENT */}
             <div className="spin-container">
-              <SpinNames selectedNames={selectedNames} />
+              <SpinNames spinnerNames={spinnerNames} spinnerCount={spinnerCount} />
             </div>
           </div >
         </div >

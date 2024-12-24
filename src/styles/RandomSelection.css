@@ -1,4 +1,3 @@
-
 .upload-container {
   background-color: black;
   color: white;
@@ -20,35 +19,17 @@
   width: 100%;
 }
 
-.random-select-controls {
-  display: flex;
-  gap: 10px;
-  border: 1px solid black;
-  background-color: black;
-  color: white;
-}
-
 .random-container {
   display: flex;
   flex-direction: row;
   flex-grow: 1;
 }
 
-.roster-container {
-  overflow-y: auto;
-  background-color: blue;
-  position: absolute;
-}
 
-.roster-title {
-  background-color: black;
-  color: white;
-}
-
-.roster-head {
-  background-color: black;
-  color: white;
-}
+/* .roster-head { */
+/*   background-color: black; */
+/*   color: white; */
+/* } */
 
 .spin-container {
   display: flex;
