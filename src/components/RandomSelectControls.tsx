@@ -2,16 +2,18 @@ import '../styles/RandomSelectControls.css'
 
 interface Props {
   numAvailableNames: number;
+  spinnerCount: number;
   isRosterDisplayed: boolean;
   isNumbered: boolean;
   isSpinning: boolean;
-  handleSpinnercountChange: (count: number) => void;
+  handleSpinnerCountChange: (count: number) => void;
   handleRosterDisplayed: () => void;
   handleIsNumbered: () => void;
   handleSpinning: () => void;
+  handleReset: () => void;
 }
 
-const RandomSelectControls = ({ numAvailableNames, isRosterDisplayed, isNumbered, isSpinning, handleSpinnercountChange, handleRosterDisplayed, handleIsNumbered, handleSpinning }: Props) => {
+const RandomSelectControls = ({ numAvailableNames, spinnerCount, isRosterDisplayed, isNumbered, isSpinning, handleSpinnerCountChange, handleRosterDisplayed, handleIsNumbered, handleSpinning, handleReset }: Props) => {
   return (
     <div className="random-select-controls">
 
@@ -31,8 +33,11 @@ const RandomSelectControls = ({ numAvailableNames, isRosterDisplayed, isNumbered
       <label>
         Select:
         <select
-          onChange={(e) => handleSpinnercountChange(Number(e.target.value))}
+          value={spinnerCount}
+          onChange={(e) => handleSpinnerCountChange(Number(e.target.value))}
         >
+          <option value={0}>
+          </option>
           {Array.from({ length: numAvailableNames }, (_, index) => (
             <option key={index} value={index + 1}>
               {index + 1}
@@ -45,13 +50,13 @@ const RandomSelectControls = ({ numAvailableNames, isRosterDisplayed, isNumbered
       <button
         className="btn btn-sm btn-primary"
         onClick={handleSpinning}
-        disabled={isSpinning}
+        disabled={isSpinning || spinnerCount < 1}
       >
         {isSpinning ? 'Spinning...' : 'Start Spin'}
       </button>
 
       {/* RESET SELECTED NAMES */}
-      <button className="btn btn-sm btn-danger">
+      <button className="btn btn-sm btn-danger" onClick={handleReset}>
         Reset
       </button>
     </div>

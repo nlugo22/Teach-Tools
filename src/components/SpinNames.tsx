@@ -8,16 +8,17 @@ interface Props {
 
 const SpinNames = ({ spinnerNames, spinnerCount }: Props) => {
 
-
   return (
     <div className="outer-container">
       <div className="inner-container">
         {/* For loop here */}
-        {Array.from({ length: spinnerCount }).map((_, index) => (
-          <div key={index} className="box">
-            {spinnerNames[index] || "Click Spin!"}
-          </div>
-        ))}
+        {spinnerCount > 0 && (
+          Array.from({ length: spinnerCount }).map((_, index) => (
+            <div key={index} className="box">
+              {spinnerNames[index] || "Click Spin!"}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

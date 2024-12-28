@@ -5,7 +5,8 @@
   justify-content: center; /* Corrected */
   height: 100vh;
   background-color: #f0f0f0; /* Corrected */
-  margin: 200px;
+  margin-left: 150px;
+  overflow: auto;
 }
 
 .inner-container {
@@ -15,18 +16,8 @@
   max-width: 1240px;
 }
 
-.spin-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
 .box {
-  font-size: 2rem;
+  font-size: 30px;
   font-weight: bold;
   color: white;
   background-color: black;
@@ -35,4 +26,5 @@
   margin-bottom: 20px;
   width: 200px;
   text-align: center;
+  overflow: hidden;
 }

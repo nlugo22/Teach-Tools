@@ -14,29 +14,16 @@
 .main-container {
   dispaly: flex;
   flex-direction: column;
-  /* align-items: stretch; */
   height: 100vh;
   width: 100%;
 }
 
-.random-container {
-  display: flex;
-  flex-direction: row;
-  flex-grow: 1;
-}
-
-
-/* .roster-head { */
-/*   background-color: black; */
-/*   color: white; */
+/* .spin-container { */
+/*   display: flex; */
+/*   flex-direction: column; /* Corrected */ */
+/*   align-items: center; /* Corrected */ */
+/*   justify-content: center; /* Corrected */ */
+/*   height: 100vh; */
+/*   width: 100vw; */
+/*   background-color: #f0f0f0; /* Corrected */ */
 /* } */
-
-.spin-container {
-  display: flex;
-  flex-direction: column; /* Corrected */
-  align-items: center; /* Corrected */
-  justify-content: center; /* Corrected */
-  height: 100vh;
-  width: 100vw;
-  background-color: #f0f0f0; /* Corrected */
-}

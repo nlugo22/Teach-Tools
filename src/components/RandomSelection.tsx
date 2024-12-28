@@ -4,21 +4,25 @@ import SpinNames from './SpinNames';
 import Roster from './Roster'
 import RandomSelectControls from './RandomSelectControls';
 
-interface Props {
-};
-
-const RandomSelection = ({ }: Props) => {
+const RandomSelection = () => {
+  /* ROSTER VARIABLES */
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [roster, setRoster] = useState<string[]>([]);
-  // const [absent, setAbsent] = useState<string[]>([]);
-  const [numAvailableNames, setNumAvailableNames] = useState(0);
+  /* const [absent, setAbsent] = useState<string[]>([]); */
+  const [selectedNames, setSelectedNames] = useState<string[]>([]);
+  const [numAvailableNames, setNumAvailableNames] = useState(0); // used to set select element for max num of spinners
   const [isNumbered, setIsNumbered] = useState(false);
   const [isRosterLoaded, setIsRosterLoaded] = useState(false);
   const [isRosterDisplayed, setIsRosterDisplayed] = useState(false);
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [spinnerCount, setSpinnerCount] = useState(1);
-  const [spinnerNames, setSpinnerNames] = useState<string[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  /* SPINNER VARIABLES */
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [spinnerCount, setSpinnerCount] = useState(1); // num of spinners on the screen
+  const [spinnerNames, setSpinnerNames] = useState<string[]>([]); // manages the names assigned on each spinner
+
+  /*******************/
+  /* ROSTER SECTION */
+  /*******************/
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     setSelectedFile(file || null);
@@ -29,7 +33,7 @@ const RandomSelection = ({ }: Props) => {
       window.alert('No file input!');
       return;
     }
-    {/* READ THE FILE AND SET THE NAMES INTO ROSTER */ }
+    /* READ THE FILE AND SET THE NAMES INTO ROSTER  */
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const fileContent = e.target?.result;
@@ -45,38 +49,41 @@ const RandomSelection = ({ }: Props) => {
     reader.onerror = () => {
       alert("Error reading file, try again!");
     };
-
+    // the roster is successfully uploaded
     reader.readAsText(selectedFile);
     setIsRosterLoaded(true);
     setIsRosterDisplayed(true);
   };
 
-  // set number of names after the roster is set
+  /* set number of names after the roster is set used for select element */
   useEffect(() => {
-    setNumAvailableNames(roster.length);
-  }, [roster]);
+    // TODO: SET TO ROSTER MINUS SELECTED OR ABSENT NAMES
+    setNumAvailableNames(roster.length - selectedNames.length);
+  }, [roster, selectedNames]);
 
-  const handleRosterDisplayed = () => {
-    setIsRosterDisplayed((prevState) => !prevState);
-  }
-
+  const handleRosterDisplayed = () => setIsRosterDisplayed((prev) => !prev);
   const handleIsNumbered = () => setIsNumbered((prev) => !prev);
 
-  {/* SPINNER LOGIC */ }
+  /*******************/
+  /* SPINNER SECTION */
+  /*******************/
   const handleSpinnerCountChange = (newCount: number) => {
     if (isSpinning) return;
+
+    /* const maxCount = Math.max(0, roster.length - selectedNames.length); */
     setSpinnerCount(newCount);
     setSpinnerNames([]);
   };
 
   const handleSpinning = () => {
-    if (isSpinning || roster.length < spinnerCount) return;
+    const availableNamesCount = roster.length - selectedNames.length;
+    if (isSpinning || spinnerCount > availableNamesCount) return;
 
     setIsSpinning(true);
     const tempSpinnerNames = Array(spinnerCount).fill('');
     const intervals: number[] = [];
 
-    // Start spinning all spinners
+    /* Start spinning all spinners */
     tempSpinnerNames.forEach((_, index) => {
       let tempIdx = index % roster.length;
       const interval = setInterval(() => {
@@ -87,21 +94,33 @@ const RandomSelection = ({ }: Props) => {
       intervals.push(interval);
     });
 
-    // Stop all spinners
+    /* Stop all spinners */
     setTimeout(() => {
       intervals.forEach(clearInterval);
 
-      const availableNames = [...roster];
-      const finalNames = [];
+      const availableNames: string[] = roster.filter((name) => !selectedNames.includes(name));
+      const finalNames: string[] = [];
 
       for (let i = 0; i < spinnerCount; i++) {
         const randomIndex = Math.floor(Math.random() * availableNames.length);
-        finalNames.push(availableNames.splice(randomIndex, 1)[0]);
+        finalNames.push(availableNames.splice(randomIndex, 1)[0]); // pushes the chosen name into final and removes from available names
       }
 
       setSpinnerNames(finalNames);
+      setSelectedNames((prevNames) => [...prevNames, ...finalNames]);
       setIsSpinning(false);
+
+      /* Adjust spinner count */
+      const remainingNamesCount = roster.length - selectedNames.length;
+      if (spinnerCount > remainingNamesCount) {
+        setSpinnerCount(remainingNamesCount);
+      }
     }, 3000);
+  };
+
+  const handleReset = () => {
+    setSpinnerNames([]);
+    setSelectedNames([]);
   };
 
   return (
@@ -114,22 +133,24 @@ const RandomSelection = ({ }: Props) => {
           <button className="btn btn-primary text-white" onClick={handleFileUpload} disabled={!selectedFile}>Upload</button>
         </div>)
       }
-       
+
 
       {/* MAIN CONTENT */}
       {isRosterLoaded && (
         <div className="main-container">
 
           {/* CONTROLS SECTION */}
-          <RandomSelectControls 
+          <RandomSelectControls
             numAvailableNames={numAvailableNames}
+            spinnerCount={spinnerCount}
             isRosterDisplayed={isRosterDisplayed}
             isNumbered={isNumbered}
             isSpinning={isSpinning}
-            handleSpinnercountChange={handleSpinnerCountChange}
-            handleRosterDisplayed={handleRosterDisplayed} 
+            handleSpinnerCountChange={handleSpinnerCountChange}
+            handleRosterDisplayed={handleRosterDisplayed}
             handleIsNumbered={handleIsNumbered}
             handleSpinning={handleSpinning}
+            handleReset={handleReset}
           />
           {/* END CONTROLS SECTION */}
 
@@ -145,8 +166,8 @@ const RandomSelection = ({ }: Props) => {
             <div className="spin-container">
               <SpinNames spinnerNames={spinnerNames} spinnerCount={spinnerCount} />
             </div>
-          </div >
-        </div >
+          </div>
+        </div>
       )}
     </>
   );
