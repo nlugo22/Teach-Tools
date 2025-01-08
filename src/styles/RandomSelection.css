@@ -12,18 +12,8 @@
 }
 
 .main-container {
-  dispaly: flex;
+  display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100%;
 }
-
-/* .spin-container { */
-/*   display: flex; */
-/*   flex-direction: column; /* Corrected */ */
-/*   align-items: center; /* Corrected */ */
-/*   justify-content: center; /* Corrected */ */
-/*   height: 100vh; */
-/*   width: 100vw; */
-/*   background-color: #f0f0f0; /* Corrected */ */
-/* } */
