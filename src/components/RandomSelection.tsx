@@ -20,6 +20,27 @@ const RandomSelection = () => {
   const [spinnerCount, setSpinnerCount] = useState(1); // num of spinners on the screen
   const [spinnerNames, setSpinnerNames] = useState<string[]>([]); // manages the names assigned on each spinner
 
+  /* load save data on component mount */
+  useEffect(() => {
+    const savedRoster = localStorage.getItem('roster');
+    const savedSelectedNames = localStorage.getItem('selectedNames');
+    if (savedRoster) {
+      setRoster(JSON.parse(savedRoster);
+      setIsRosterLoaded(true);
+      setIsRosterDisplayed(true);
+    }
+
+    if (savedSelectedNames) {
+      setSelectedNames(JSON.parse(savedSelectedNames));
+    }
+  }, []);
+
+  /* save names and roster */
+  useEffect(() => {
+    localStorage.setItem('roster', JSON.stringify(roster));
+    localStorage.setItem('selectedNames', JSON.stringify(selectedNames));
+  },[roster, selectedNames]);
+
   /*******************/
   /* ROSTER SECTION */
   /*******************/
@@ -123,6 +144,13 @@ const RandomSelection = () => {
     setSelectedNames([]);
   };
 
+  const handleGoBack = () => {
+    setIsRosterDisplayed(false);
+    setIsRosterLoaded(false);
+    setRoster([]);
+    setSelectedNames([]);
+  };
+
   return (
     <>
       {/* UPLOAD FILE INPUT */}
@@ -151,6 +179,7 @@ const RandomSelection = () => {
             handleIsNumbered={handleIsNumbered}
             handleSpinning={handleSpinning}
             handleReset={handleReset}
+            handleGoBack={handleGoBack}
           />
           {/* END CONTROLS SECTION */}
 

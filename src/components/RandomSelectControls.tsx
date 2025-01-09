@@ -11,11 +11,17 @@ interface Props {
   handleIsNumbered: () => void;
   handleSpinning: () => void;
   handleReset: () => void;
+  handleGoBack: () => void;
 }
 
-const RandomSelectControls = ({ numAvailableNames, spinnerCount, isRosterDisplayed, isNumbered, isSpinning, handleSpinnerCountChange, handleRosterDisplayed, handleIsNumbered, handleSpinning, handleReset }: Props) => {
+const RandomSelectControls = ({ numAvailableNames, spinnerCount, isRosterDisplayed, isNumbered, isSpinning, handleSpinnerCountChange, handleRosterDisplayed, handleIsNumbered, handleSpinning, handleReset, handleGoBack }: Props) => {
   return (
     <div className="random-select-controls">
+
+      {/* GO BACK TO UPLOAD PAGE */}
+      <button className="btn btn-sm btn-danger" onClick={handleGoBack}>
+        Back
+      </button>
 
       {/* HIDE/SHOW ROSTER */}
       <button className="btn btn-sm btn-info" onClick={handleRosterDisplayed}>
