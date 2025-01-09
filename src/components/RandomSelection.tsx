@@ -24,7 +24,7 @@ const RandomSelection = () => {
   useEffect(() => {
     const savedRoster = localStorage.getItem('roster');
     const savedSelectedNames = localStorage.getItem('selectedNames');
-    if (savedRoster) {
+    if (savedRoster && !isRosterLoaded) {
       setRoster(JSON.parse(savedRoster));
       setIsRosterLoaded(true);
       setIsRosterDisplayed(true);
@@ -33,13 +33,15 @@ const RandomSelection = () => {
     if (savedSelectedNames) {
       setSelectedNames(JSON.parse(savedSelectedNames));
     }
-  }, []);
+  }, [isRosterLoaded]);
 
   /* save names and roster */
   useEffect(() => {
-    localStorage.setItem('roster', JSON.stringify(roster));
-    localStorage.setItem('selectedNames', JSON.stringify(selectedNames));
-  },[roster, selectedNames]);
+    if (isRosterLoaded) {
+      localStorage.setItem('roster', JSON.stringify(roster));
+      localStorage.setItem('selectedNames', JSON.stringify(selectedNames));
+    }
+  },[roster, selectedNames, isRosterLoaded]);
 
   /*******************/
   /* ROSTER SECTION */
@@ -146,6 +148,9 @@ const RandomSelection = () => {
 
   /* RESET EVERYTHING FOR NEW ROSTER UPLOAD */
   const handleGoBack = () => {
+    localStorage.removeItem('roster');
+    localStorage.removeItem('selectedNames');
+
     setSelectedFile(null);
     setRoster([]);
     setIsRosterDisplayed(false);
@@ -163,8 +168,8 @@ const RandomSelection = () => {
           <h2>Upload Student Roster</h2>
           <input className="btn text-white" type="file" accept=".txt" onChange={handleFileChange} />
           <button className="btn btn-primary text-white" onClick={handleFileUpload} disabled={!selectedFile}>Upload</button>
-        </div>)
-      }
+        </div>
+      )}
 
 
       {/* MAIN CONTENT */}
