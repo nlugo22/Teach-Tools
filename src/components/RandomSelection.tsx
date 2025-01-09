@@ -25,7 +25,7 @@ const RandomSelection = () => {
     const savedRoster = localStorage.getItem('roster');
     const savedSelectedNames = localStorage.getItem('selectedNames');
     if (savedRoster) {
-      setRoster(JSON.parse(savedRoster);
+      setRoster(JSON.parse(savedRoster));
       setIsRosterLoaded(true);
       setIsRosterDisplayed(true);
     }
