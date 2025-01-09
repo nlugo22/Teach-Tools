@@ -1,18 +1,27 @@
-import React, { useEffect } from 'react'
-import { useState, useRef } from 'react';
-import WhiteboardControls from './WhiteboardControls';
-import '../styles/Whiteboard.css'
+import React, { useEffect } from "react";
+import { useState, useRef } from "react";
+import WhiteboardControls from "./WhiteboardControls";
+import "../styles/Whiteboard.css";
+
+type Line =  {
+  points: { x: number, y: number }[],
+  color: string,
+  width: number,
+}
+
+type DrawingEvent = React.MouseEvent | React.TouchEvent;
 
 const Whiteboard = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [lineWidth, setLineWidth] = useState<number>(5);
-  const [currentColor, setCurrentColor] = useState<string>('black');
+  const [currentColor, setCurrentColor] = useState<string>("black");
+  const [lines, setLines] = useState<Line[]>([]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gridCanvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const gridCtxRef = useRef<CanvasRenderingContext2D | null>(null);
-  const lastPosRef = useRef<{ x: number, y: number } | null>(null);
+  const lastPosRef = useRef<{ x: number; y: number } | null>(null);
 
   // init canvas sized
   useEffect(() => {
@@ -28,14 +37,22 @@ const Whiteboard = () => {
       gridCanvas.width = width;
       gridCanvas.height = height;
 
-      ctxRef.current = canvas.getContext('2d');
-      gridCtxRef.current = gridCanvas.getContext('2d');
+      ctxRef.current = canvas.getContext("2d");
+      gridCtxRef.current = gridCanvas.getContext("2d");
 
       // init drawing canvas setup
       if (ctxRef.current) {
         ctxRef.current.lineCap = "round";
         ctxRef.current.lineWidth = lineWidth;
         ctxRef.current.strokeStyle = currentColor;
+      }
+
+      // load saved drawing if exists
+      const savedDrawing = localStorage.getItem("whiteboardDrawing");
+      if (savedDrawing && ctxRef.current) {
+        const savedLines: Line[] = JSON.parse(savedDrawing);
+        setLines(savedLines);
+        redrawCanvas(savedLines, ctxRef.current);
       }
     }
   }, []);
@@ -46,7 +63,6 @@ const Whiteboard = () => {
 
     ctxRef.current.strokeStyle = currentColor;
     ctxRef.current.lineWidth = lineWidth;
-
   }, [lineWidth, currentColor]);
 
   const drawGridLines = (show: boolean) => {
@@ -78,46 +94,107 @@ const Whiteboard = () => {
     }
   };
 
-  const startDrawing = (e: React.MouseEvent) => {
-    const { offsetX, offsetY } = e.nativeEvent;
+  const startDrawing = (e: DrawingEvent) => {
+    const { x, y } = getEventCoordinates(e);
     setIsDrawing(true);
-    lastPosRef.current = { x: offsetX, y: offsetY };
+    lastPosRef.current = { x, y };
+    setLines((prev) => [...prev, { points: [{ x, y }], color: currentColor, width: lineWidth }]);
   };
 
   const stopDrawing = () => {
     setIsDrawing(false);
     lastPosRef.current = null;
+
+    // Save lines to storage
+    localStorage.setItem("whiteboardDrawing", JSON.stringify(lines));
   };
 
-  const draw = ({ nativeEvent }: React.MouseEvent) => {
+  const draw = (e: DrawingEvent) => {
     if (!isDrawing || !canvasRef.current) return;
 
-    const { offsetX, offsetY } = nativeEvent;
+    const { x, y } = getEventCoordinates(e);
     const ctx = canvasRef.current.getContext("2d");
-
     if (!ctx || !lastPosRef.current) return;
 
     // begin drawing
     ctx.beginPath(); // start a new path on the canvas
     ctx.moveTo(lastPosRef.current.x, lastPosRef.current.y); // move the pen to the starting point
-    ctx.lineTo(offsetX, offsetY); // draws a straight line to mouse coordinates
+    ctx.lineTo(x, y); // draws a straight line to mouse coordinates
     ctx.stroke(); // draws the actual line seen
 
-    lastPosRef.current = ({ x: offsetX, y: offsetY });
+    lastPosRef.current = { x, y };
+
+    // Update current lines
+    setLines((prev) => {
+      const updatedLines = [...prev];
+      const currentLine = updatedLines[updatedLines.length - 1];
+      if (currentLine) {
+        currentLine.points.push({ x, y });
+      }
+      return updatedLines;
+    });
   };
 
+  const redrawCanvas = (lines: Line[], ctx: CanvasRenderingContext2D) => {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-  /**************************************** 
+    lines.forEach((line) => {
+      ctx.strokeStyle = line.color;
+      ctx.lineWidth = line.width;
+
+      ctx.beginPath();
+      line.points.forEach((point, index) => {
+        if (index === 0) {
+          ctx.moveTo(point.x, point.y);
+        } else {
+          ctx.lineTo(point.x, point.y);
+        }
+      });
+      ctx.stroke();
+    });
+  };
+
+  const getEventCoordinates = (e: DrawingEvent): { x: number; y: number } => {
+    if ("touches" in e) {
+      const touch = e.touches[0];
+      const rect = (e.target as HTMLElement).getBoundingClientRect();
+      return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top,
+      };
+    } else {
+      const mouseEvent = e as React.MouseEvent;
+      return {
+        x: mouseEvent.nativeEvent.offsetX,
+        y: mouseEvent.nativeEvent.offsetY,
+      };
+    }
+  };
+
+  /****************************************
    *   Whiteboard control functionality   *
    ****************************************/
-  const handleLineWidthChange = (width: number) => { setLineWidth(width); };
+  const handleLineWidthChange = (width: number) => {
+    setLineWidth(width);
+  };
 
-  const handleLineColor = (color: string) => { setCurrentColor(color); };
+  const handleLineColor = (color: string) => {
+    setCurrentColor(color);
+  };
 
   const clearCanvas = () => {
     if (ctxRef.current && canvasRef.current) {
-      ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      ctxRef.current.clearRect(
+        0,
+        0,
+        canvasRef.current.width,
+        canvasRef.current.height,
+      );
     }
+
+    // Clear saved drawing
+    localStorage.removeItem("whiteboardDrawing");
+    setLines([]);
   };
 
   return (
@@ -134,8 +211,8 @@ const Whiteboard = () => {
         <canvas
           ref={gridCanvasRef}
           style={{
-            position: 'absolute',
-            pointerEvents: 'none',
+            position: "absolute",
+            pointerEvents: "none",
             zIndex: 1,
           }}
         />
@@ -148,7 +225,7 @@ const Whiteboard = () => {
           onMouseUp={stopDrawing}
           onMouseLeave={stopDrawing}
           style={{
-            position: 'absolute',
+            position: "absolute",
             zIndex: 2,
           }}
         />
@@ -157,4 +234,4 @@ const Whiteboard = () => {
   );
 };
 
-export default Whiteboard
+export default Whiteboard;
