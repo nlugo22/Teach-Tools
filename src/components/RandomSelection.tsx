@@ -144,11 +144,15 @@ const RandomSelection = () => {
     setSelectedNames([]);
   };
 
+  /* RESET EVERYTHING FOR NEW ROSTER UPLOAD */
   const handleGoBack = () => {
+    setSelectedFile(null);
+    setRoster([]);
     setIsRosterDisplayed(false);
     setIsRosterLoaded(false);
-    setRoster([]);
     setSelectedNames([]);
+    setSpinnerNames([]);
+    setSpinnerCount(1);
   };
 
   return (
