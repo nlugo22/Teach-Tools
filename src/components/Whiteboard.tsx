@@ -98,6 +98,16 @@ const Whiteboard = () => {
     const { x, y } = getEventCoordinates(e);
     setIsDrawing(true);
     lastPosRef.current = { x, y };
+
+    // Immediately draw the dot on canvas
+    const ctx = ctxRef.current;
+    if (ctx) {
+      ctx.beginPath();
+      ctx.arc(x, y, lineWidth / 2, 0, Math.PI * 2);  // Use arc to draw a dot
+      ctx.fillStyle = currentColor;
+      ctx.fill();
+    }
+
     setLines((prev) => [...prev, { points: [{ x, y }], color: currentColor, width: lineWidth }]);
   };
 
