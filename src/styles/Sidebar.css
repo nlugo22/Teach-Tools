@@ -1,10 +1,9 @@
 .sidebar {
-  flex: 0 0 150px;
+  flex: 0 0 100px;
   background-color: #36454F;
   border-right: 1px solid #36454F;
-  overflow-y: auto;
+  overflow-y: none;
   height: 100vh;
-  overflow-y: auto;
 }
 
 .sidebar h2 {
@@ -13,7 +12,7 @@
 }
 
 .sidebar button {
-  width: 200px; /* Fixed width for all buttons */
+  width: 150px; /* Fixed width for all buttons */
   text-align: left; /* Ensure text is centered */
   background-color: #b0c4de;
   padding: 5px;

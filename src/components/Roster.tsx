@@ -40,6 +40,7 @@ const Roster = ({ isNumbered, roster }: Props) => {
       >
         Roster
       </h3>
+      <div className="table-container">
       <table className="table table-striped table-bordered">
         <thead className="table-dark">
           <tr>
@@ -56,6 +57,7 @@ const Roster = ({ isNumbered, roster }: Props) => {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }
