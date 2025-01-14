@@ -109,7 +109,7 @@ const Whiteboard = () => {
       const ctx = ctxRef.current;
       if (ctx) {
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, lineWidth / 2, 0, Math.PI * 2); // use arc to draw a dot
+        ctx.arc(pos.x, pos.y, lineWidth, 0, Math.PI * 2); // use arc to draw a dot
         ctx.fillStyle = currentColor;
         ctx.fill();
       }
@@ -166,7 +166,7 @@ const Whiteboard = () => {
     if (!isDrawing) return;
     const ctx = ctxRef.current;
     if (!ctx) return;
-    const eraserSize = lineWidth;
+    const eraserSize = lineWidth * 2;
 
     const newLines = lines.filter((line) => {
       return !line.points.some((point) => {
