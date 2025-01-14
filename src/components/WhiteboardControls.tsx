@@ -6,9 +6,10 @@ interface Props {
   setLineColor: (color: string) => void;
   clearCanvas: () => void;
   drawGridLines: (show: boolean) => void;
+  toggleEraser: () => void;
 }
 
-const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas, drawGridLines }: Props) => {
+const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas, drawGridLines, toggleEraser }: Props) => {
   const [selectedWidth, setSelectedWidth] = useState<number>(5);
   const [gridLinesEnabled, setGridLinesEnabled] = useState(false);
 
@@ -58,6 +59,8 @@ const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas, drawGridL
           />
           {gridLinesEnabled ? "Hide Grid" : "Show Grid"}
         </label>
+
+        <button onClick={toggleEraser}>Eraser</button>
       </div>
     </div>
   )

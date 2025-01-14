@@ -3,16 +3,22 @@ import { useState, useRef } from "react";
 import WhiteboardControls from "./WhiteboardControls";
 import "../styles/Whiteboard.css";
 
-type Line =  {
-  points: { x: number, y: number }[],
-  color: string,
-  width: number,
-}
+type Point = {
+  x: number;
+  y: number;
+};
+
+type Line = {
+  points: Point[];
+  color: string;
+  width: number;
+};
 
 type DrawingEvent = React.MouseEvent | React.TouchEvent;
 
 const Whiteboard = () => {
   const [isDrawing, setIsDrawing] = useState(false);
+  const [isErasing, setIsErasing] = useState(false);
   const [lineWidth, setLineWidth] = useState<number>(5);
   const [currentColor, setCurrentColor] = useState<string>("black");
   const [lines, setLines] = useState<Line[]>([]);
@@ -21,7 +27,7 @@ const Whiteboard = () => {
   const gridCanvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const gridCtxRef = useRef<CanvasRenderingContext2D | null>(null);
-  const lastPosRef = useRef<{ x: number; y: number } | null>(null);
+  const lastPosRef = useRef<Point | null>(null);
 
   // init canvas sized
   useEffect(() => {
@@ -60,7 +66,6 @@ const Whiteboard = () => {
   // Update for color or line changes
   useEffect(() => {
     if (!ctxRef.current) return;
-
     ctxRef.current.strokeStyle = currentColor;
     ctxRef.current.lineWidth = lineWidth;
   }, [lineWidth, currentColor]);
@@ -95,54 +100,86 @@ const Whiteboard = () => {
   };
 
   const startDrawing = (e: DrawingEvent) => {
-    const { x, y } = getEventCoordinates(e);
+    const pos = getEventCoordinates(e);
+    lastPosRef.current = pos;
     setIsDrawing(true);
-    lastPosRef.current = { x, y };
 
-    // Immediately draw the dot on canvas
-    const ctx = ctxRef.current;
-    if (ctx) {
-      ctx.beginPath();
-      ctx.arc(x, y, lineWidth / 2, 0, Math.PI * 2);  // Use arc to draw a dot
-      ctx.fillStyle = currentColor;
-      ctx.fill();
+    if (!isErasing) {
+      // immediately draw the dot on canvas
+      const ctx = ctxRef.current;
+      if (ctx) {
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, lineWidth / 2, 0, Math.PI * 2); // use arc to draw a dot
+        ctx.fillStyle = currentColor;
+        ctx.fill();
+      }
+
+      setLines((prev) => [
+        ...prev,
+        {
+          points: [{ x: pos.x, y: pos.y }],
+          color: currentColor,
+          width: lineWidth,
+        },
+      ]);
     }
-
-    setLines((prev) => [...prev, { points: [{ x, y }], color: currentColor, width: lineWidth }]);
   };
 
   const stopDrawing = () => {
     setIsDrawing(false);
     lastPosRef.current = null;
-
-    // Save lines to storage
     localStorage.setItem("whiteboardDrawing", JSON.stringify(lines));
   };
 
   const draw = (e: DrawingEvent) => {
-    if (!isDrawing || !canvasRef.current) return;
+    if (!canvasRef.current) return;
+    const pos = getEventCoordinates(e);
 
-    const { x, y } = getEventCoordinates(e);
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx || !lastPosRef.current) return;
+    if (isErasing) {
+      handleErasing(pos);
+    } else {
+      if (!isDrawing) return;
+      const ctx = canvasRef.current.getContext("2d");
+      if (!ctx || !lastPosRef.current) return;
 
-    // begin drawing
-    ctx.beginPath(); // start a new path on the canvas
-    ctx.moveTo(lastPosRef.current.x, lastPosRef.current.y); // move the pen to the starting point
-    ctx.lineTo(x, y); // draws a straight line to mouse coordinates
-    ctx.stroke(); // draws the actual line seen
+      // begin drawing
+      ctx.beginPath(); // start a new path on the canvas
+      ctx.moveTo(lastPosRef.current.x, lastPosRef.current.y); // move the pen to the starting point
+      ctx.lineTo(pos.x, pos.y); // draws a straight line to mouse coordinates
+      ctx.stroke(); // draws the actual line seen
 
-    lastPosRef.current = { x, y };
+      lastPosRef.current = pos;
 
-    // Update current lines
-    setLines((prev) => {
-      const updatedLines = [...prev];
-      const currentLine = updatedLines[updatedLines.length - 1];
-      if (currentLine) {
-        currentLine.points.push({ x, y });
-      }
-      return updatedLines;
+      // Update current lines
+      setLines((prev) => {
+        const updatedLines = [...prev];
+        const currentLine = updatedLines[updatedLines.length - 1];
+        if (currentLine) {
+          currentLine.points.push({ x: pos.x, y: pos.y });
+        }
+        return updatedLines;
+      });
+    }
+  };
+
+  const handleErasing = (currentPos: Point) => {
+    if (!isDrawing) return;
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    const eraserSize = lineWidth;
+
+    const newLines = lines.filter((line) => {
+      return !line.points.some((point) => {
+        const distance = Math.sqrt(
+          Math.pow(point.x - currentPos.x, 2) +
+            Math.pow(point.y - currentPos.y, 2),
+        );
+        return distance <= eraserSize;
+      });
     });
+
+    setLines(newLines);
+    redrawCanvas(newLines, ctx);
   };
 
   const redrawCanvas = (lines: Line[], ctx: CanvasRenderingContext2D) => {
@@ -190,6 +227,7 @@ const Whiteboard = () => {
 
   const handleLineColor = (color: string) => {
     setCurrentColor(color);
+    setIsErasing(false);
   };
 
   const clearCanvas = () => {
@@ -207,6 +245,10 @@ const Whiteboard = () => {
     setLines([]);
   };
 
+  const toggleEraser = () => {
+    setIsErasing((prev) => !prev);
+  };
+
   return (
     <div className="whiteboard-container">
       <WhiteboardControls
@@ -214,6 +256,7 @@ const Whiteboard = () => {
         setLineColor={handleLineColor}
         clearCanvas={clearCanvas}
         drawGridLines={drawGridLines}
+        toggleEraser={toggleEraser}
       />
 
       {/* Canvas for gridlines */}
