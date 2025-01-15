@@ -13,10 +13,10 @@ const SpinNames = ({ spinnerNames, spinnerCount }: Props) => {
       display: 'flex', 
       flexDirection: 'column',
     }}>
-      <div className="row g-2">
+      <div className="row justify-content-center">
         {spinnerCount > 0 && (
           Array.from({ length: spinnerCount }).map((_, index) => (
-            <div key={index} className="col-3">
+            <div key={index} className="col-auto mb-3">
             <div className="box bg-dark text-light border p-4" 
               style={{ 
                 fontSize: '30px', 
