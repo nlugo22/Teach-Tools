@@ -23,8 +23,10 @@ const SpinNames = ({ spinnerNames, spinnerCount }: Props) => {
                 fontWeight: 'bold', 
                 textAlign: 'center', 
                 whiteSpace: 'nowrap',
+                width: '200px',
+                overflow: 'hidden',
               }}>
-              {spinnerNames[index] || "Click Spin!"}
+              {spinnerNames[index] || index + 1}
             </div>
             </div>
           ))
