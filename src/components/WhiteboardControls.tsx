@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import '../styles/Whiteboard.css'
 
 interface Props {
@@ -7,9 +7,10 @@ interface Props {
   clearCanvas: () => void;
   drawGridLines: (show: boolean) => void;
   toggleEraser: () => void;
+  isErasing: boolean;
 }
 
-const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas, drawGridLines, toggleEraser }: Props) => {
+const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas, drawGridLines, toggleEraser, isErasing }: Props) => {
   const [selectedWidth, setSelectedWidth] = useState<number>(5);
   const [gridLinesEnabled, setGridLinesEnabled] = useState(false);
 
@@ -24,10 +25,40 @@ const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas, drawGridL
     drawGridLines(e.target.checked);
   }
 
+  const eraserButtonClass = isErasing 
+    ? 'btn btn-sm bg-secondary text-light'
+    : 'btn btn-sm bg-light text-dark';
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'e' || event.key === 'E') {
+        toggleEraser();
+      }
+      if (event.key === 'q' || event.key === 'Q') {
+        setLineColor('black');
+      }
+      if (event.key === 'r' || event.key === 'R') {
+        setLineColor('red');
+      }
+      if (event.key === 'b' || event.key === 'B') {
+        setLineColor('blue');
+      }
+      if (event.key === 'g' || event.key === 'G') {
+        setLineColor('green');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [toggleEraser, setLineColor]);
+
   return (
-    <div className="whiteboard-controls-container">
-      <h1 className="whiteboard-header">Whiteboard</h1>
-      <div className="whiteboard-controls">
+    <div className="p-0 m-0 bg-dark text-light">
+      <h1 className="text-center py-2 mb-0">Whiteboard</h1>
+      <div className="d-flex align-items-center gap-1 border-bottom border-dark">
         {/* Line width dropdown */}
         <select
           id="line-width"
@@ -47,8 +78,8 @@ const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas, drawGridL
         <button type="button" className='btn btn-sm bg-success text-white' onClick={() => setLineColor('green')}>Green</button>
         <button type="button" className='btn btn-sm bg-primary text-white' onClick={() => setLineColor('blue')}>Blue</button>
 
-        {/* Clear everything off */}
-        <button type="button" className='btn btn-sm bg-light' onClick={() => clearCanvas()}>Clear</button>
+        {/* ERASER BUTTON */}
+        <button type="button" className={eraserButtonClass} onClick={toggleEraser}>Eraser</button>
 
         {/* SHOW GRID LINES */}
         <label style={{ color: "white", }}>
@@ -60,7 +91,9 @@ const WhiteboardControls = ({ setLineWidth, setLineColor, clearCanvas, drawGridL
           {gridLinesEnabled ? "Hide Grid" : "Show Grid"}
         </label>
 
-        <button onClick={toggleEraser}>Eraser</button>
+        {/* Clear everything off */}
+        <button type="button" className='btn btn-sm bg-light' onClick={() => clearCanvas()}>Clear</button>
+
       </div>
     </div>
   )

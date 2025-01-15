@@ -250,21 +250,22 @@ const Whiteboard = () => {
   };
 
   return (
-    <div className="whiteboard-container">
+    <div className="container-fluid p-0 m-0">
       <WhiteboardControls
         setLineWidth={handleLineWidthChange}
         setLineColor={handleLineColor}
         clearCanvas={clearCanvas}
         drawGridLines={drawGridLines}
         toggleEraser={toggleEraser}
+        isErasing={isErasing}
       />
 
       {/* Canvas for gridlines */}
-      <div className="canvas-container">
+      <div className="position-relative">
         <canvas
+          className="position-absolute"
           ref={gridCanvasRef}
           style={{
-            position: "absolute",
             pointerEvents: "none",
             zIndex: 1,
           }}
@@ -272,6 +273,7 @@ const Whiteboard = () => {
 
         {/* Main drawing canvas */}
         <canvas
+          className="position-absolute"
           ref={canvasRef}
           onMouseDown={startDrawing}
           onMouseMove={draw}
@@ -282,7 +284,6 @@ const Whiteboard = () => {
           onTouchStartCapture={(e) => e.preventDefault()}
           onTouchMoveCapture={(e) => e.preventDefault()}
           style={{
-            position: "absolute",
             zIndex: 2,
           }}
         />
