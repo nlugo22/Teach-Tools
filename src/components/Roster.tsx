@@ -7,37 +7,9 @@ interface Props {
 }
 
 const Roster = ({ isNumbered, roster }: Props) => {
-  const [position, setPosition] = useState(() => {
-    const savedPosition = localStorage.getItem('rosterPosition');
-    return savedPosition ? JSON.parse(savedPosition) : { x: 150, y: 95 };
-  });
-  const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem('rosterPosition', JSON.stringify(position));
-  }, [position]);
-
-  const handleMouseDown = () => {
-    setIsDragging(true);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseMove = (event: React.MouseEvent) => {
-    if (!isDragging) return;
-
-    setPosition((prev: {x: number, y: number}) => ({ x: prev.x + event.movementX, y: prev.y + event.movementY })); }; return (
-    <div className="roster-container"
-      style={{ left: position.x, top: position.y }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseUp}
-    >
-      <h3 className="roster-title text-white bg-dark"
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-      >
+  return (
+    <div className="roster-container">
+      <h3 className="roster-title text-white bg-dark">
         Roster
       </h3>
       <div className="table-container">
@@ -59,7 +31,7 @@ const Roster = ({ isNumbered, roster }: Props) => {
       </table>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Roster

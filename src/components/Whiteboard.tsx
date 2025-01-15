@@ -109,9 +109,9 @@ const Whiteboard = () => {
       const ctx = ctxRef.current;
       if (ctx) {
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, lineWidth, 0, Math.PI * 2); // use arc to draw a dot
-        ctx.fillStyle = currentColor;
-        ctx.fill();
+        ctx.moveTo(pos.x, pos.y);
+        ctx.lineTo(pos.x  + 1, pos.y + 1);
+        ctx.stroke();
       }
 
       setLines((prev) => [
@@ -279,8 +279,8 @@ const Whiteboard = () => {
           onMouseLeave={stopDrawing}
           onTouchStart={startDrawing}
           onTouchMove={draw}
-          onTouchEnd={stopDrawing}
-          onTouchCancel={stopDrawing}
+          onTouchStartCapture={(e) => e.preventDefault()}
+          onTouchMoveCapture={(e) => e.preventDefault()}
           style={{
             position: "absolute",
             zIndex: 2,

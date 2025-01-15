@@ -1,5 +1,3 @@
-import '../styles/SpinNames.css'
-
 interface Props {
   // names: string[];
   spinnerNames: string[];
@@ -9,17 +7,29 @@ interface Props {
 const SpinNames = ({ spinnerNames, spinnerCount }: Props) => {
 
   return (
-    <div className="outer-container">
-      <div className="inner-container">
-        {/* For loop here */}
+    <div className="d-flex flex-column justify-content-center align-items-center overflow-auto"
+    style={{ 
+      height: '100vh',  // Full viewport height to center vertically
+      display: 'flex', 
+      flexDirection: 'column',
+    }}>
+      <div className="row g-2">
         {spinnerCount > 0 && (
           Array.from({ length: spinnerCount }).map((_, index) => (
-            <div key={index} className="box">
+            <div key={index} className="col-3">
+            <div className="box bg-dark text-light border p-4" 
+              style={{ 
+                fontSize: '30px', 
+                fontWeight: 'bold', 
+                textAlign: 'center', 
+                whiteSpace: 'nowrap',
+              }}>
               {spinnerNames[index] || "Click Spin!"}
+            </div>
             </div>
           ))
         )}
-      </div>
+    </div>
     </div>
   );
 }

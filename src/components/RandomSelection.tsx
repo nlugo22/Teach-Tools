@@ -193,19 +193,21 @@ const RandomSelection = () => {
           {/* END CONTROLS SECTION */}
 
           {/* ROSTER AND NAME SPINNER */}
-          <div className="random-container">
-
-            {/* ROSTER */}
+          <div className="d-flex justify-content-between">
+            {/* <div className="col-1"> */}
             {(roster.length > 0 && isRosterDisplayed) && (
+              <div className="me-auto">
               <Roster isNumbered={isNumbered} roster={roster} />
+              </div>
             )}
-
+            
             {/* SPIN COMPONENT */}
-            <div className="spin-container">
-              <SpinNames spinnerNames={spinnerNames} spinnerCount={spinnerCount} />
+            <div className='mx-auto'>
+            <SpinNames spinnerNames={spinnerNames} spinnerCount={spinnerCount} />
             </div>
-          </div>
-        </div>
+            </div>
+      </div>
+
       )}
     </>
   );
