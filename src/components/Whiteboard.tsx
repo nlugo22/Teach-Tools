@@ -202,6 +202,7 @@ const Whiteboard = () => {
   };
 
   const getEventCoordinates = (e: DrawingEvent): { x: number; y: number } => {
+    e.preventDefault();
     if ("touches" in e) {
       const touch = e.touches[0];
       const rect = (e.target as HTMLElement).getBoundingClientRect();
@@ -218,9 +219,6 @@ const Whiteboard = () => {
     }
   };
 
-  /****************************************
-   *   Whiteboard control functionality   *
-   ****************************************/
   const handleLineWidthChange = (width: number) => {
     setLineWidth(width);
   };
@@ -281,8 +279,6 @@ const Whiteboard = () => {
           onMouseLeave={stopDrawing}
           onTouchStart={startDrawing}
           onTouchMove={draw}
-          onTouchStartCapture={(e) => e.preventDefault()}
-          onTouchMoveCapture={(e) => e.preventDefault()}
           style={{
             zIndex: 2,
           }}
