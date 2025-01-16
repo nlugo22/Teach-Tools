@@ -277,6 +277,8 @@ const Whiteboard = () => {
           onMouseLeave={stopDrawing}
           onTouchStart={startDrawing}
           onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+          onTouchCancel={stopDrawing}
           style={{
             zIndex: 2,
           }}
