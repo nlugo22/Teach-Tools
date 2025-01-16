@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useState, useRef } from "react";
 import WhiteboardControls from "./WhiteboardControls";
-import "../styles/Whiteboard.css";
 
 type Point = {
   x: number;
@@ -202,7 +201,6 @@ const Whiteboard = () => {
   };
 
   const getEventCoordinates = (e: DrawingEvent): { x: number; y: number } => {
-    e.preventDefault();
     if ("touches" in e) {
       const touch = e.touches[0];
       const rect = (e.target as HTMLElement).getBoundingClientRect();
@@ -259,7 +257,7 @@ const Whiteboard = () => {
       />
 
       {/* Canvas for gridlines */}
-      <div className="position-relative">
+      <div className="position-relative" style={{ touchAction: 'none' }}>
         <canvas
           className="position-absolute"
           ref={gridCanvasRef}

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import '../styles/Whiteboard.css'
 
 interface Props {
   setLineWidth: (width: number) => void;
