@@ -10,7 +10,7 @@ const Sidebar = ({ setActiveModule }: Props) => {
       <h2>Modules</h2>
       <button onClick={() => setActiveModule("whiteboard")}>Whiteboard</button>
       <button onClick={() => setActiveModule("random-selection")}>Random Selection</button>
-      <button onClick={() => setActiveModule("something")}>Something</button>
+      <button onClick={() => setActiveModule("math-games")}>Math Games</button>
     </aside>
   )
 }

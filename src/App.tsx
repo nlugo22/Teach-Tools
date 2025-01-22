@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar';
 import { useState } from 'react';
 import RandomSelection from './components/RandomSelection';
 import Whiteboard from './components/Whiteboard';
+import MultiplicationGame from './components/MultiplicationGame';
 
 function App() {
   const [activeModule, setActiveModule] = useState<string>("whiteboard");
@@ -15,6 +16,8 @@ function App() {
         return <Whiteboard />;
       case "random-selection":
         return <RandomSelection />;
+      case "math-games":
+        return <MultiplicationGame />;
       default:
         return <></>;
     }
