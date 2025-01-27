@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import WhiteboardControls from "./WhiteboardControls";
-import Tabs from "./Tabs";
 
 type Point = {
   x: number;
@@ -17,14 +16,14 @@ type DrawingEvent = React.MouseEvent | React.TouchEvent;
 
 const Whiteboard = () => {
   /* DATA FOR TABS */
-  const [activeTab, setActiveTab] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<number>(1);
 
   /* DRAWING VARIABLES */
   const [isDrawing, setIsDrawing] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
   const [lineWidth, setLineWidth] = useState<number>(5);
   const [currentColor, setCurrentColor] = useState<string>("black");
-  const [linesByTab, setLinesByTab] = useState<Map<number, Line[]>>(new Map());
+  const [linesByTab, setLinesByTab] = useState<Line[]>([]);
 
   /* REFS AND CONTEXT */
   const canvasRef = useRef<(HTMLCanvasElement | null)>();
@@ -73,10 +72,9 @@ const Whiteboard = () => {
   useEffect(() => {
     const savedDrawing = localStorage.getItem(`whiteboardDrawing-${activeTab}`);
     if (savedDrawing) {
-      const savedLines = JSON.parse(savedDrawing)
-      setLinesByTab((prev) => {
-        const updatedLines = new Map(prev);
-        updatedLines.set(activeTab, savedLines || []); // store lines for current tab
+      const savedLines = JSON.parse(savedDrawing);
+      setLinesByTab(() => {
+        const updatedLines: Line[] = savedLines || [];
         return updatedLines;
       });
 
@@ -133,13 +131,10 @@ const Whiteboard = () => {
         ctx.stroke();
       }
 
-      setLinesByTab((prev) => {
-        const newLines = prev.get(activeTab) || [];
-        newLines.push({ points: [{ x: pos.x, y: pos.y }], color: currentColor, width: lineWidth });
-        const updatedLines = new Map(prev);
-        updatedLines.set(activeTab, newLines);
-        return updatedLines;
-      }); 
+      setLinesByTab((prev) => [
+        ...prev,
+        { points: [pos], color: currentColor, width: lineWidth },
+      ]); 
     }
   };
 
@@ -166,19 +161,17 @@ const Whiteboard = () => {
         ctx.stroke(); // draws the actual line seen
       }
 
-      lastPosRef.current = pos;
-
       // Update current lines
       setLinesByTab((prev) => {
-        const newLines = prev.get(activeTab) || [];
+        const newLines = [...prev];
         const lastLine = newLines[newLines.length - 1];
         if (lastLine) {
-          lastLine.points.push({ x: pos.x, y: pos.y });
+            lastLine.points.push(pos);
         }
-        const updatedLines = new Map(prev);
-        updatedLines.set(activeTab, newLines);
-        return updatedLines;
+        return newLines;
       });
+
+      lastPosRef.current = pos;
     }
   };
 
@@ -266,9 +259,12 @@ const Whiteboard = () => {
     setIsErasing((prev) => !prev);
   };
 
+  const handleActiveTabChange = (tab: number) => { setActiveTab(tab) }
+
   return (
     <div className="container-fluid p-0 m-0">
       <WhiteboardControls
+        handleActiveTabChange={handleActiveTabChange}
         setLineWidth={handleLineWidthChange}
         setLineColor={handleLineColor}
         clearCanvas={clearCanvas}
@@ -277,13 +273,6 @@ const Whiteboard = () => {
         isErasing={isErasing}
       />
 
-      <Tabs
-        tabs={["Tab 1", "Tab 2", "Tab 3"]}
-        activeTab={activeTab}
-        onTabChange={(index: number) => {
-          setActiveTab(index);
-        }}
-      />
       <div className="position-relative" style={{ touchAction: "none" }}>
         {/* Canvas for gridlines */}
         <canvas
