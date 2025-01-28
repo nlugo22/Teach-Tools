@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 
 interface Props {
-  handleActiveTabChange: (tab: number) => void;
+  activeTab: number;
+  handleActiveTabChange: (activeTab: number) => void;
   setLineWidth: (width: number) => void;
   setLineColor: (color: string) => void;
   clearCanvas: () => void;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 const WhiteboardControls = ({
+  activeTab,
   handleActiveTabChange,
   setLineWidth,
   setLineColor,
@@ -39,20 +41,36 @@ const WhiteboardControls = ({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "e" || event.key === "E") {
-        toggleEraser();
-      }
-      if (event.key === "q" || event.key === "Q") {
-        setLineColor("black");
-      }
-      if (event.key === "r" || event.key === "R") {
-        setLineColor("red");
-      }
-      if (event.key === "b" || event.key === "B") {
-        setLineColor("blue");
-      }
-      if (event.key === "g" || event.key === "G") {
-        setLineColor("green");
+      const key = event.key.toLowerCase();
+
+      switch (key) {
+        case "e":
+          toggleEraser();
+          break;
+        case "q":
+          setLineColor("black");
+          break;
+        case "r":
+          setLineColor("red");
+          break;
+        case "b":
+          setLineColor("blue");
+          break;
+        case "g":
+          setLineColor("green");
+          break;
+        case "1":
+          handleActiveTabChange(1);
+          break;
+        case "2":
+          handleActiveTabChange(2);
+          break;
+        case "3":
+          handleActiveTabChange(3);
+          break;
+        case "c":
+          clearCanvas();
+          break;
       }
     };
 
@@ -68,9 +86,29 @@ const WhiteboardControls = ({
       <h1 className="text-center py-2 mb-0">Whiteboard</h1>
       <div className="d-flex align-items-center gap-1 border-bottom border-dark">
         {/* TABS  */}
-        <button className="btn btn-sm bg-light" onClick={() => handleActiveTabChange(1)}>1</button>
-        <button className="btn btn-sm bg-light" onClick={() => handleActiveTabChange(2)}>2</button>
-        <button className="btn btn-sm bg-light" onClick={() => handleActiveTabChange(3)}>3</button>
+        <div className="gap-0">
+          <button
+            className={`btn btn-sm ${activeTab === 1 ? "bg-secondary" : "bg-light" }`}
+            title="Click or press 1"
+            onClick={() => handleActiveTabChange(1)}
+          >
+            1
+          </button>
+          <button
+            className={`btn btn-sm ${activeTab === 2 ? "bg-secondary" : "bg-light" }`}
+            title="Click or press 2"
+            onClick={() => handleActiveTabChange(2)}
+          >
+            2
+          </button>
+          <button
+            className={`btn btn-sm ${activeTab === 3 ? "bg-secondary" : "bg-light" }`}
+            title="Click or press 3"
+            onClick={() => handleActiveTabChange(3)}
+          >
+            3
+          </button>
+        </div>
 
         {/* Line width dropdown */}
         <select
@@ -90,6 +128,7 @@ const WhiteboardControls = ({
           type="button"
           className="btn btn-sm bg-dark text-white"
           onClick={() => setLineColor("black")}
+          title="Click or press q"
         >
           Black
         </button>
@@ -97,6 +136,7 @@ const WhiteboardControls = ({
           type="button"
           className="btn btn-sm bg-danger text-white"
           onClick={() => setLineColor("red")}
+          title="Click or press r"
         >
           Red
         </button>
@@ -104,6 +144,7 @@ const WhiteboardControls = ({
           type="button"
           className="btn btn-sm bg-success text-white"
           onClick={() => setLineColor("green")}
+          title="Click or press g"
         >
           Green
         </button>
@@ -111,6 +152,7 @@ const WhiteboardControls = ({
           type="button"
           className="btn btn-sm bg-primary text-white"
           onClick={() => setLineColor("blue")}
+          title="Click or press b"
         >
           Blue
         </button>
@@ -120,6 +162,7 @@ const WhiteboardControls = ({
           type="button"
           className={eraserButtonClass}
           onClick={toggleEraser}
+          title="Click or press e"
         >
           Eraser
         </button>
@@ -139,6 +182,7 @@ const WhiteboardControls = ({
           type="button"
           className="btn btn-sm bg-light"
           onClick={() => clearCanvas()}
+          title="Click or press c"
         >
           Clear
         </button>

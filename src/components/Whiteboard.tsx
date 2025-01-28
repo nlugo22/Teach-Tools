@@ -26,10 +26,10 @@ const Whiteboard = () => {
   const [linesByTab, setLinesByTab] = useState<Line[]>([]);
 
   /* REFS AND CONTEXT */
-  const canvasRef = useRef<(HTMLCanvasElement | null)>();
-  const gridCanvasRef = useRef<(HTMLCanvasElement | null)>();
-  const ctxRef = useRef<(CanvasRenderingContext2D | null)>();
-  const gridCtxRef = useRef<(CanvasRenderingContext2D | null)>();
+  const canvasRef = useRef<HTMLCanvasElement | null>();
+  const gridCanvasRef = useRef<HTMLCanvasElement | null>();
+  const ctxRef = useRef<CanvasRenderingContext2D | null>();
+  const gridCtxRef = useRef<CanvasRenderingContext2D | null>();
 
   const lastPosRef = useRef<Point | null>(null);
 
@@ -48,7 +48,7 @@ const Whiteboard = () => {
       gridCanvas.height = height;
 
       const ctx = canvas.getContext("2d");
-      const gridCtx = canvas.getContext("2d");
+      const gridCtx = gridCanvas.getContext("2d");
 
       if (ctx) {
         ctx.lineWidth = lineWidth;
@@ -70,18 +70,18 @@ const Whiteboard = () => {
 
   // load drawing on tab change
   useEffect(() => {
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
     const savedDrawing = localStorage.getItem(`whiteboardDrawing-${activeTab}`);
     if (savedDrawing) {
       const savedLines = JSON.parse(savedDrawing);
-      setLinesByTab(() => {
-        const updatedLines: Line[] = savedLines || [];
-        return updatedLines;
-      });
-
-      const ctx = ctxRef.current;
-      if (ctx) {
-        redrawCanvas(savedLines || [], ctx);
-      }
+      setLinesByTab(savedLines);
+      redrawCanvas(savedLines, ctx);
+    } else {
+      setLinesByTab([]);
     }
   }, [activeTab]);
 
@@ -134,14 +134,17 @@ const Whiteboard = () => {
       setLinesByTab((prev) => [
         ...prev,
         { points: [pos], color: currentColor, width: lineWidth },
-      ]); 
+      ]);
     }
   };
 
   const stopDrawing = () => {
     setIsDrawing(false);
     lastPosRef.current = null;
-    localStorage.setItem( `whiteboardDrawing-${activeTab}`, JSON.stringify(Array.from(linesByTab.entries())));
+    localStorage.setItem(
+      `whiteboardDrawing-${activeTab}`,
+      JSON.stringify(linesByTab),
+    );
   };
 
   const draw = (e: DrawingEvent) => {
@@ -166,7 +169,7 @@ const Whiteboard = () => {
         const newLines = [...prev];
         const lastLine = newLines[newLines.length - 1];
         if (lastLine) {
-            lastLine.points.push(pos);
+          lastLine.points.push(pos);
         }
         return newLines;
       });
@@ -181,21 +184,17 @@ const Whiteboard = () => {
     if (!ctx) return;
     const eraserSize = lineWidth * 2;
 
-    const newLines = (linesByTab.get(activeTab) || []).filter((line) => {
+    const updatedLines = linesByTab.filter((line) => {
       return !line.points.some((point) => {
         const distanceSquared =
-          Math.pow(point.x - currentPos.x, 2) + Math.pow(point.y - currentPos.y, 2);
+          Math.pow(point.x - currentPos.x, 2) +
+          Math.pow(point.y - currentPos.y, 2);
         return distanceSquared <= Math.pow(eraserSize, 2);
       });
     });
 
-    setLinesByTab((prev) => {
-      const updatedLines = new Map(prev);
-      updatedLines.set(activeTab, newLines);
-      return updatedLines;
-    });
-
-    redrawCanvas(newLines, ctx);
+    setLinesByTab(updatedLines);
+    redrawCanvas(updatedLines, ctx);
   };
 
   const redrawCanvas = (lines: Line[], ctx: CanvasRenderingContext2D) => {
@@ -252,18 +251,21 @@ const Whiteboard = () => {
 
     // Clear saved drawing
     localStorage.removeItem(`whiteboardDrawing-${activeTab}`);
-    setLinesByTab(new Map());
+    setLinesByTab([]);
   };
 
   const toggleEraser = () => {
     setIsErasing((prev) => !prev);
   };
 
-  const handleActiveTabChange = (tab: number) => { setActiveTab(tab) }
+  const handleActiveTabChange = (tab: number) => {
+    setActiveTab(tab);
+  };
 
   return (
     <div className="container-fluid p-0 m-0">
       <WhiteboardControls
+        activeTab={activeTab}
         handleActiveTabChange={handleActiveTabChange}
         setLineWidth={handleLineWidthChange}
         setLineColor={handleLineColor}
