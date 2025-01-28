@@ -48,6 +48,7 @@ const Whiteboard = () => {
       // init drawing canvas setup
       if (ctxRef.current) {
         ctxRef.current.lineCap = "round";
+        ctxRef.current.lineJoin = "round";
         ctxRef.current.lineWidth = lineWidth;
         ctxRef.current.strokeStyle = currentColor;
       }
