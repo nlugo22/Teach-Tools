@@ -53,6 +53,8 @@ const Whiteboard = () => {
       if (ctx) {
         ctx.lineWidth = lineWidth;
         ctx.strokeStyle = currentColor;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
       }
 
       ctxRef.current = ctx;
@@ -84,6 +86,29 @@ const Whiteboard = () => {
       setLinesByTab([]);
     }
   }, [activeTab]);
+
+ // Prevent context menu from opening on touch events (including stylus)
+  const handleContextMenu = (e: TouchEvent) => {
+    e.preventDefault(); // Prevent the context menu from appearing on touch
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    if (canvas) {
+      // Prevent right-click context menu for touch events
+      canvas.addEventListener("touchstart", handleContextMenu, { passive: false });
+      canvas.addEventListener("touchend", handleContextMenu, { passive: false });
+
+      return () => {
+        // Clean up event listeners when the component is unmounted
+        if (canvas) {
+          canvas.removeEventListener("touchstart", handleContextMenu);
+          canvas.removeEventListener("touchend", handleContextMenu);
+        }
+      };
+    }
+  }, []);
 
   const drawGridLines = (show: boolean) => {
     const gridCtx = gridCtxRef.current;
