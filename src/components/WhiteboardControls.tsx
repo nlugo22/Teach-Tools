@@ -77,7 +77,6 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
   return (
     <div className="p-0 m-0 bg-dark text-light">
-      <h1 className="text-center py-2 mb-0">Whiteboard</h1>
       <div className="d-flex align-items-center gap-1 border-bottom border-dark">
         {/* TABS */}
         <div className="gap-0">
