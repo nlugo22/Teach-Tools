@@ -1,27 +1,83 @@
+/* Sidebar Styles */
 .sidebar {
-  flex: 0 0 100px;
+  width: 150px;
   background-color: #36454F;
   border-right: 1px solid #36454F;
-  overflow-y: none;
+  position: relative;
   height: 100vh;
+  transition: width 0.3s ease, background-color 0.3s ease, border-right 0.3s ease;
+  overflow: hidden;
+  z-index: 1;
 }
 
+/* Sidebar collapsed state */
+.sidebar.collapsed {
+  width: 0;
+  background-color: transparent;
+  border-right: none;
+  overflow: hidden;
+}
+
+/* Menu visibility */
+.menu {
+  display: block;
+  opacity: 1;
+  transition: opacity 0.3s ease, display 0s linear 0.3s;
+}
+
+.menu.collapsed-menu {
+  display: none;
+  opacity: 0;
+}
+
+/* Hamburger Button */
+.collapse-btn {
+  position: fixed; /* Make sure it's fixed to the screen */
+  top: 15px;
+  left: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 2000; /* Ensure it stays on top of everything else */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 25px;
+}
+
+/* Hamburger bars */
+.collapse-btn .bar {
+  width: 30px;
+  height: 5px;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+/* Sidebar Menu Text */
 .sidebar h2 {
   color: white;
   text-align: center;
 }
 
-.sidebar button {
+/* Styling for the menu buttons */
+.sidebar .menu button {
   width: 150px; /* Fixed width for all buttons */
-  text-align: left; /* Ensure text is centered */
+  text-align: left;
   background-color: #b0c4de;
   padding: 5px;
-  white-space: nowrap; /* Prevent text from wrapping */
-  text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+  white-space: nowrap;
+  text-overflow: ellipsis;
   transition: background-color 0.12s ease;
 }
 
-.sidebar button:hover {
-  background-color: #4682B4; /* Maroon hover color */
-  color: #ffffff; /* Change text color to white for contrast */
+/* Hover Effect for Menu Buttons */
+.sidebar .menu button:hover {
+  background-color: #4682B4;
+  color: #ffffff;
+}
+
+/* Hide the button text when sidebar is collapsed */
+.sidebar.collapsed .menu {
+  display: none;
 }

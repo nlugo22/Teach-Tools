@@ -24,7 +24,7 @@ function App() {
     <>
       <Navbar />
       <div className="content">
-        <aside className="sidebar">
+        <aside>
           <Sidebar setActiveModule={setActiveModule} />
         </aside>
         <main className="main-content">
