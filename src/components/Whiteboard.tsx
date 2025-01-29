@@ -53,14 +53,6 @@ const Whiteboard = () => {
         ctxRef.current.lineWidth = lineWidth;
         ctxRef.current.strokeStyle = currentColor;
       }
-
-      // load saved drawing if exists
-      const savedDrawing = localStorage.getItem(`whiteboardDrawing-${activeTab}`);
-      if (savedDrawing && ctxRef.current) {
-        const savedLines: Line[] = JSON.parse(savedDrawing);
-        setLines(savedLines);
-        redrawCanvas(savedLines, ctxRef.current);
-      }
     }
   }, []);
 
@@ -71,7 +63,7 @@ const Whiteboard = () => {
     ctxRef.current.lineWidth = lineWidth;
   }, [lineWidth, currentColor]);
 
- // Prevent context menu from opening on touch events (including stylus)
+  // Prevent context menu from opening on touch events (including stylus)
   const handleContextMenu = (e: TouchEvent) => {
     e.preventDefault(); // Prevent the context menu from appearing on touch
   };
@@ -81,8 +73,12 @@ const Whiteboard = () => {
 
     if (canvas) {
       // Prevent right-click context menu for touch events
-      canvas.addEventListener("touchstart", handleContextMenu, { passive: false });
-      canvas.addEventListener("touchend", handleContextMenu, { passive: false });
+      canvas.addEventListener("touchstart", handleContextMenu, {
+        passive: false,
+      });
+      canvas.addEventListener("touchend", handleContextMenu, {
+        passive: false,
+      });
 
       return () => {
         // Clean up event listeners when the component is unmounted
@@ -100,14 +96,17 @@ const Whiteboard = () => {
     if (!ctx) return;
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    const savedLines = localStorage.getItem(`whiteboardDrawing-${activeTab}`)
-    
+    setLines([]);
+
+    const savedLines = localStorage.getItem(`whiteboardDrawing-${activeTab}`);
     if (savedLines) {
+      console.log(savedLines);
       const parsedLines = JSON.parse(savedLines);
       setLines(parsedLines);
+      ctx.lineWidth = lineWidth;
       redrawCanvas(parsedLines, ctx);
     }
-  }, [activeTab])
+  }, [activeTab]);
 
   const drawGridLines = (show: boolean) => {
     const gridCtx = gridCtxRef.current;
@@ -149,13 +148,13 @@ const Whiteboard = () => {
       if (ctx) {
         ctx.beginPath();
         ctx.moveTo(pos.x, pos.y);
-        ctx.lineTo(pos.x  + 1, pos.y + 1);
+        ctx.lineTo(pos.x + 1, pos.y + 1);
         ctx.stroke();
       }
 
       setLines((prev) => [
         ...prev,
-        { points: [pos], color: currentColor, width: lineWidth, },
+        { points: [pos], color: currentColor, width: lineWidth },
       ]);
     }
   };
@@ -163,7 +162,10 @@ const Whiteboard = () => {
   const stopDrawing = () => {
     setIsDrawing(false);
     lastPosRef.current = null;
-    localStorage.setItem(`whiteboardDrawing-${activeTab}`, JSON.stringify(lines));
+    localStorage.setItem(
+      `whiteboardDrawing-${activeTab}`,
+      JSON.stringify(lines),
+    );
   };
 
   const draw = (e: DrawingEvent) => {
@@ -207,7 +209,7 @@ const Whiteboard = () => {
       return !line.points.some((point) => {
         const distance = Math.sqrt(
           Math.pow(point.x - currentPos.x, 2) +
-            Math.pow(point.y - currentPos.y, 2),
+          Math.pow(point.y - currentPos.y, 2),
         );
         return distance <= eraserSize;
       });
@@ -283,7 +285,7 @@ const Whiteboard = () => {
 
   const handleActiveTabChange = (tab: number) => {
     setActiveTab(tab);
-  }
+  };
 
   return (
     <div className="container-fluid p-0 m-0">
@@ -299,7 +301,7 @@ const Whiteboard = () => {
       />
 
       {/* Canvas for gridlines */}
-      <div className="position-relative" style={{ touchAction: 'none' }}>
+      <div className="position-relative" style={{ touchAction: "none" }}>
         <canvas
           className="position-absolute"
           ref={gridCanvasRef}
