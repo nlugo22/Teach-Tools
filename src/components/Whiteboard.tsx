@@ -96,16 +96,19 @@ const Whiteboard = () => {
     if (!ctx) return;
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    setLines([]);
 
     const savedLines = localStorage.getItem(`whiteboardDrawing-${activeTab}`);
     if (savedLines) {
-      console.log(savedLines);
       const parsedLines = JSON.parse(savedLines);
       setLines(parsedLines);
       ctx.lineWidth = lineWidth;
       redrawCanvas(parsedLines, ctx);
+    } else {
+      setLines([]);
     }
+
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = currentColor;
   }, [activeTab]);
 
   const drawGridLines = (show: boolean) => {
@@ -162,10 +165,10 @@ const Whiteboard = () => {
   const stopDrawing = () => {
     setIsDrawing(false);
     lastPosRef.current = null;
-    localStorage.setItem(
-      `whiteboardDrawing-${activeTab}`,
-      JSON.stringify(lines),
-    );
+    setLines((prev) => {
+      localStorage.setItem(`whiteboardDrawing-${activeTab}`, JSON.stringify(prev));
+      return prev;
+    })
   };
 
   const draw = (e: DrawingEvent) => {
