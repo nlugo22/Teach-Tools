@@ -221,7 +221,7 @@ const RandomSelection = () => {
             )}
 
             {/* SPIN COMPONENT */}
-            <div className="mx-auto">
+            <div className="d-flex mx-auto">
               <SpinNames
                 spinnerNames={spinnerNames}
                 spinnerCount={spinnerCount}

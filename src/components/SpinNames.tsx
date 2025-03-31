@@ -7,13 +7,12 @@ interface Props {
 const SpinNames = ({ spinnerNames, spinnerCount }: Props) => {
 
   return (
-    <div className="d-flex flex-column justify-content-center align-items-center overflow-auto"
+    <div className="d-flex flex-column justify-content-center"
     style={{ 
-      height: '100vh',  // Full viewport height to center vertically
-      display: 'flex', 
-      flexDirection: 'column',
+      flexDirection: "column",
+      height: "100vh",
     }}>
-      <div className="row justify-content-center">
+      <div className="row justify-content-center" style={{overflowY: "auto"}}>
         {spinnerCount > 0 && (
           Array.from({ length: spinnerCount }).map((_, index) => (
             <div key={index} className="col-auto mb-3">
