@@ -8,7 +8,7 @@ const RandomSelection = () => {
   /* ROSTER VARIABLES */
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [roster, setRoster] = useState<string[]>([]);
-  /* const [absent, setAbsent] = useState<string[]>([]); */
+  const [absent, setAbsent] = useState<string[]>([]);
   const [selectedNames, setSelectedNames] = useState<string[]>([]);
   const [numAvailableNames, setNumAvailableNames] = useState(0); // used to set select element for max num of spinners
   const [isNumbered, setIsNumbered] = useState(false);
@@ -23,6 +23,7 @@ const RandomSelection = () => {
   /* load save data on component mount */
   useEffect(() => {
     const savedRoster = localStorage.getItem("roster");
+    const savedAbsent = localStorage.getItem("absent");
     const savedSelectedNames = localStorage.getItem("selectedNames");
     const savedSpinnerNames = localStorage.getItem("spinnerNames");
     if (savedRoster && !isRosterLoaded) {
@@ -31,10 +32,14 @@ const RandomSelection = () => {
       setIsRosterDisplayed(true);
     }
 
+    if (savedAbsent) {
+      setAbsent(JSON.parse(savedAbsent));
+    }
+
     if (savedSelectedNames) {
       setSelectedNames(JSON.parse(savedSelectedNames));
     }
-    
+
     if (savedSpinnerNames) {
       setSpinnerNames(JSON.parse(savedSpinnerNames));
       setSpinnerCount(JSON.parse(savedSpinnerNames).length);
@@ -45,11 +50,12 @@ const RandomSelection = () => {
   useEffect(() => {
     if (isRosterLoaded) {
       localStorage.setItem("roster", JSON.stringify(roster));
+      localStorage.setItem("absent", JSON.stringify(absent));
       localStorage.setItem("selectedNames", JSON.stringify(selectedNames));
       localStorage.setItem("spinnerNames", JSON.stringify(spinnerNames));
       localStorage.setItem("spinCount", JSON.stringify(spinnerCount));
     }
-  }, [roster, selectedNames, isRosterLoaded]);
+  }, [roster, absent, selectedNames, isRosterLoaded]);
 
   /*******************/
   /* ROSTER SECTION */
@@ -64,6 +70,7 @@ const RandomSelection = () => {
       window.alert("No file input!");
       return;
     }
+
     /* READ THE FILE AND SET THE NAMES INTO ROSTER  */
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -89,11 +96,20 @@ const RandomSelection = () => {
   /* set number of names after the roster is set used for select element */
   useEffect(() => {
     // TODO: SET TO ROSTER MINUS SELECTED OR ABSENT NAMES
-    setNumAvailableNames(roster.length - selectedNames.length);
-  }, [roster, selectedNames]);
+    setNumAvailableNames(
+      roster.filter(
+        (name) => !selectedNames.includes(name) && !absent.includes(name),
+      ).length,
+    );
+  }, [roster, selectedNames, absent]);
 
   const handleRosterDisplayed = () => setIsRosterDisplayed((prev) => !prev);
   const handleIsNumbered = () => setIsNumbered((prev) => !prev);
+
+  /* Handle absent students */
+  const handleAbsent = (updatedAbsent: string[]) => {
+    setAbsent(updatedAbsent);
+  };
 
   /*******************/
   /* SPINNER SECTION */
@@ -101,13 +117,14 @@ const RandomSelection = () => {
   const handleSpinnerCountChange = (newCount: number) => {
     if (isSpinning) return;
 
-    /* const maxCount = Math.max(0, roster.length - selectedNames.length); */
     setSpinnerCount(newCount);
     setSpinnerNames([]);
   };
 
   const handleSpinning = () => {
-    const availableNamesCount = roster.length - selectedNames.length;
+    const availableNamesCount = roster.filter(
+      (name) => !selectedNames.includes(name) && !absent.includes(name),
+    ).length;
     if (isSpinning || spinnerCount > availableNamesCount) return;
 
     setIsSpinning(true);
@@ -130,7 +147,7 @@ const RandomSelection = () => {
       intervals.forEach(clearInterval);
 
       const availableNames: string[] = roster.filter(
-        (name) => !selectedNames.includes(name),
+        (name) => !selectedNames.includes(name) && !absent.includes(name),
       );
       const finalNames: string[] = [];
 
@@ -156,9 +173,14 @@ const RandomSelection = () => {
     setSelectedNames([]);
   };
 
+  const handleClearAbsent = () => {
+    setAbsent([]);
+  }
+
   /* RESET EVERYTHING FOR NEW ROSTER UPLOAD */
   const handleGoBack = () => {
     localStorage.removeItem("roster");
+    localStorage.removeItem("absent");
     localStorage.removeItem("selectedNames");
 
     setSelectedFile(null);
@@ -168,6 +190,7 @@ const RandomSelection = () => {
     setSelectedNames([]);
     setSpinnerNames([]);
     setSpinnerCount(1);
+    setAbsent([]);
   };
 
   return (
@@ -208,6 +231,7 @@ const RandomSelection = () => {
             handleSpinning={handleSpinning}
             handleReset={handleReset}
             handleGoBack={handleGoBack}
+            handleClearAbsent={handleClearAbsent}
           />
           {/* END CONTROLS SECTION */}
 
@@ -216,7 +240,12 @@ const RandomSelection = () => {
             {/* <div className="col-1"> */}
             {roster.length > 0 && isRosterDisplayed && (
               <div className="me-auto">
-                <Roster isNumbered={isNumbered} roster={roster} />
+                <Roster
+                  isNumbered={isNumbered}
+                  roster={roster}
+                  absent={absent}
+                  setAbsent={handleAbsent}
+                />
               </div>
             )}
 

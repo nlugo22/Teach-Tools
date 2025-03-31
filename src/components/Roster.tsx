@@ -3,9 +3,19 @@ import "../styles/Roster.css";
 interface Props {
   isNumbered: boolean;
   roster: string[];
+  absent: string[];
+  setAbsent: (absentList: string[]) => void;
 }
 
-const Roster = ({ isNumbered, roster }: Props) => {
+const Roster = ({ isNumbered, roster, absent, setAbsent }: Props) => {
+  const handleClick = (name: string) => {
+    const updatedAbsent = absent.includes(name)
+      ? absent.filter((n) => n !== name)
+      : [...absent, name];
+
+    setAbsent(updatedAbsent);
+  };
+
   return (
     <div className="roster-container">
       <h3 className="roster-title text-white bg-dark">Roster</h3>
@@ -17,12 +27,17 @@ const Roster = ({ isNumbered, roster }: Props) => {
               <th scope="col">Name</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody style={{ cursor: "pointer" }}>
             {roster.map((name, index) => {
               return (
-                <tr key={index} className='roster-rows'>
+                <tr key={index} className="roster-rows">
                   {isNumbered && <td>{index + 1}</td>}
-                  <td>{name}</td>
+                  <td
+                    onClick={() => handleClick(name)}
+                    className={absent.includes(name) ? "bg-danger" : ""}
+                  >
+                    {name}
+                  </td>
                 </tr>
               );
             })}
