@@ -12,10 +12,16 @@ function App() {
     return savedModule ? savedModule : "whiteboard";
   });
 
+  const [isSidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+
   // Update localstorage on module change
   useEffect(() => {
     localStorage.setItem("activeModule", activeModule);
   }, [activeModule])
+
+  const handleCollapseClick = () => {
+    setSidebarCollapsed((prev) => !prev );
+  }
 
   const loadModule = () => {
     switch (activeModule) {
@@ -30,10 +36,10 @@ function App() {
 
   return (
     <>
-      <Navbar />
+      <Navbar handleCollapseClick={handleCollapseClick} isSidebarCollapsed={isSidebarCollapsed}/>
       <div className="content">
         <aside>
-          <Sidebar setActiveModule={setActiveModule} />
+          <Sidebar setActiveModule={setActiveModule} isSidebarCollapsed={isSidebarCollapsed} />
         </aside>
         <main className="main-content">
           {loadModule()}

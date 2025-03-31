@@ -291,7 +291,7 @@ const Whiteboard = () => {
   };
 
   return (
-    <div className="container-fluid p-0 m-0">
+    <div className="p-0 m-0 w-100">
       <WhiteboardControls
         activeTab={activeTab}
         handleActiveTabChange={handleActiveTabChange}

@@ -30,30 +30,6 @@
   opacity: 0;
 }
 
-/* Hamburger Button */
-.collapse-btn {
-  position: fixed; /* Make sure it's fixed to the screen */
-  top: 15px;
-  left: 10px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 2000; /* Ensure it stays on top of everything else */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 30px;
-  height: 25px;
-}
-
-/* Hamburger bars */
-.collapse-btn .bar {
-  width: 30px;
-  height: 5px;
-  background-color: #fff;
-  border-radius: 5px;
-}
-
 /* Sidebar Menu Text */
 .sidebar h2 {
   color: white;
