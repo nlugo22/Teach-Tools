@@ -6,13 +6,36 @@ import { useEffect, useState } from 'react';
 import RandomSelection from './components/RandomSelection';
 import Whiteboard from './components/Whiteboard';
 
+enum Modules {
+  WHITEBOARD = "whiteboard",
+  RANDOM_SELECT = "random_select",
+}
+
+const modules = Object.values(Modules);
+
 function App() {
   const [activeModule, setActiveModule] = useState<string>(() => {
     const savedModule = localStorage.getItem("activeModule");
-    return savedModule ? savedModule : "whiteboard";
+    return savedModule ? savedModule : Modules.WHITEBOARD;
   });
 
   const [isSidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        setActiveModule((prev) => {
+          const currentIndex = modules.indexOf(prev as Modules);
+          const nextIndex = (currentIndex + 1) % modules.length;
+          return modules[nextIndex]
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
+  }, []);
 
   // Update localstorage on module change
   useEffect(() => {
@@ -25,9 +48,9 @@ function App() {
 
   const loadModule = () => {
     switch (activeModule) {
-      case "whiteboard":
+      case Modules.WHITEBOARD:
         return <Whiteboard />;
-      case "random-selection":
+      case Modules.RANDOM_SELECT:
         return <RandomSelection />;
       default:
         return <></>;

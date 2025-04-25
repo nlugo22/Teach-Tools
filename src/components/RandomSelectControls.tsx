@@ -5,17 +5,19 @@ interface Props {
   spinnerCount: number;
   isRosterDisplayed: boolean;
   isNumbered: boolean;
+  isSorted: boolean;
   isSpinning: boolean;
   handleSpinnerCountChange: (count: number) => void;
   handleRosterDisplayed: () => void;
   handleIsNumbered: () => void;
+  handleSort: () => void;
   handleSpinning: () => void;
   handleReset: () => void;
   handleClearAbsent: () => void;
   handleGoBack: () => void;
 }
 
-const RandomSelectControls = ({ numAvailableNames, spinnerCount, isRosterDisplayed, isNumbered, isSpinning, handleSpinnerCountChange, handleRosterDisplayed, handleIsNumbered, handleSpinning, handleReset, handleClearAbsent, handleGoBack }: Props) => {
+const RandomSelectControls = ({ numAvailableNames, spinnerCount, isRosterDisplayed, isNumbered, isSorted, isSpinning, handleSpinnerCountChange, handleRosterDisplayed, handleIsNumbered, handleSort, handleSpinning, handleReset, handleClearAbsent, handleGoBack }: Props) => {
   return (
     <div className="random-select-controls">
 
@@ -40,6 +42,19 @@ const RandomSelectControls = ({ numAvailableNames, spinnerCount, isRosterDisplay
           {isNumbered ? "Hide roster numbers" : "Roster Numbers"}
         </button>
       )}
+
+      {/* Sort the names */}
+      <div className="border p-1 small"> 
+        <label style={{ color: "white", }}>
+        <input
+          type="checkbox"
+          checked={isSorted}
+          onChange={handleSort}
+        />
+        {isSorted ? "Undo Sort" : "Sort"}
+        </label>
+      </div>
+
 
       {/* SET NUM OF SPINNERS */}
       <label>

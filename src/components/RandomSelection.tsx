@@ -8,12 +8,14 @@ const RandomSelection = () => {
   /* ROSTER VARIABLES */
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [roster, setRoster] = useState<string[]>([]);
+  const [sortedRoster, setSortedRoster] = useState<string[]>([]);
   const [absent, setAbsent] = useState<string[]>([]);
   const [selectedNames, setSelectedNames] = useState<string[]>([]);
   const [numAvailableNames, setNumAvailableNames] = useState(0); // used to set select element for max num of spinners
-  const [isNumbered, setIsNumbered] = useState(false);
-  const [isRosterLoaded, setIsRosterLoaded] = useState(false);
-  const [isRosterDisplayed, setIsRosterDisplayed] = useState(false);
+  const [isNumbered, setIsNumbered] = useState<boolean>(false);
+  const [isSorted, setIsSorted] = useState<boolean>(false);
+  const [isRosterLoaded, setIsRosterLoaded] = useState<boolean>(false);
+  const [isRosterDisplayed, setIsRosterDisplayed] = useState<boolean>(false);
 
   /* SPINNER VARIABLES */
   const [isSpinning, setIsSpinning] = useState(false);
@@ -95,7 +97,6 @@ const RandomSelection = () => {
 
   /* set number of names after the roster is set used for select element */
   useEffect(() => {
-    // TODO: SET TO ROSTER MINUS SELECTED OR ABSENT NAMES
     setNumAvailableNames(
       roster.filter(
         (name) => !selectedNames.includes(name) && !absent.includes(name),
@@ -103,8 +104,17 @@ const RandomSelection = () => {
     );
   }, [roster, selectedNames, absent]);
 
+  useEffect(() => {
+    const sorted = [...roster].sort()
+    setSortedRoster(sorted)
+  }, [roster])
+
   const handleRosterDisplayed = () => setIsRosterDisplayed((prev) => !prev);
   const handleIsNumbered = () => setIsNumbered((prev) => !prev);
+
+  const handleSort = () => {
+    setIsSorted((prev) => !prev)
+  };
 
   /* Handle absent students */
   const handleAbsent = (updatedAbsent: string[]) => {
@@ -224,10 +234,12 @@ const RandomSelection = () => {
             spinnerCount={spinnerCount}
             isRosterDisplayed={isRosterDisplayed}
             isNumbered={isNumbered}
+            isSorted={isSorted}
             isSpinning={isSpinning}
             handleSpinnerCountChange={handleSpinnerCountChange}
             handleRosterDisplayed={handleRosterDisplayed}
             handleIsNumbered={handleIsNumbered}
+            handleSort={handleSort}
             handleSpinning={handleSpinning}
             handleReset={handleReset}
             handleGoBack={handleGoBack}
@@ -242,7 +254,7 @@ const RandomSelection = () => {
               <div className="me-auto">
                 <Roster
                   isNumbered={isNumbered}
-                  roster={roster}
+                  roster={isSorted ? sortedRoster : roster}
                   absent={absent}
                   setAbsent={handleAbsent}
                 />
