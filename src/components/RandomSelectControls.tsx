@@ -31,32 +31,45 @@ const RandomSelectControls = ({ numAvailableNames, spinnerCount, isRosterDisplay
         Clear Absent
       </button>
 
-      {/* HIDE/SHOW ROSTER */}
-      <button className="btn btn-sm btn-info" onClick={handleRosterDisplayed}>
-        {isRosterDisplayed ? "Hide Roster" : "Show Roster"}
-      </button>
+      {/* Hide Roster */}
+      <div className="p-1 small"> 
+        <label style={{ color: "white", }}>
+        <input
+          type="checkbox"
+          checked={isRosterDisplayed}
+          onChange={handleRosterDisplayed}
+        />
+        Roster
+        </label>
+      </div>
 
-      {/* ADD NUMBERS TO ROSTER */}
-      {isRosterDisplayed && (
-        <button className="btn btn-sm btn-info" onClick={handleIsNumbered}>
-          {isNumbered ? "Hide roster numbers" : "Roster Numbers"}
-        </button>
-      )}
+      {/* Number the roster */}
+      <div className="p-1 small"> 
+        <label style={{ color: "white" }}>
+        <input
+          type="checkbox"
+          checked={isNumbered}
+          onChange={handleIsNumbered}
+        />
+        Enumerate
+        </label>
+      </div>
 
       {/* Sort the names */}
-      <div className="border p-1 small"> 
+      <div className="p-1 small"> 
         <label style={{ color: "white", }}>
         <input
           type="checkbox"
           checked={isSorted}
           onChange={handleSort}
         />
-        {isSorted ? "Undo Sort" : "Sort"}
+        Sort
         </label>
       </div>
 
 
       {/* SET NUM OF SPINNERS */}
+      <div className="p-1 small"> 
       <label>
         Select:
         <select
@@ -72,6 +85,7 @@ const RandomSelectControls = ({ numAvailableNames, spinnerCount, isRosterDisplay
           ))}
         </select>
       </label>
+      </div>
 
       {/* START NAME SELECTION */}
       <button
