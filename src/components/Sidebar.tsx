@@ -14,7 +14,7 @@ const Sidebar = ({ setActiveModule, isSidebarCollapsed }: Props) => {
         <button onClick={() => setActiveModule("whiteboard")}>
           Whiteboard
         </button>
-        <button onClick={() => setActiveModule("random-selection")}>
+        <button onClick={() => setActiveModule("random-select")}>
           Random Selection
         </button>
         <button onClick={() => setActiveModule("something")}>Something</button>

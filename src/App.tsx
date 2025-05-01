@@ -8,7 +8,7 @@ import Whiteboard from './components/Whiteboard';
 
 enum Modules {
   WHITEBOARD = "whiteboard",
-  RANDOM_SELECT = "random_select",
+  RANDOM_SELECT = "random-select",
 }
 
 const modules = Object.values(Modules);
