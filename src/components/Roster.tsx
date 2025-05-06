@@ -10,17 +10,37 @@ interface Props {
   onRosterChange: (newRoster: string) => void;
 }
 
-const Roster = ({ isNumbered, roster, rosterName, absentMap, setAbsentMap, onRosterChange }: Props) => {
+const Roster = ({
+  isNumbered,
+  roster,
+  rosterName,
+  absentMap,
+  setAbsentMap,
+  onRosterChange,
+}: Props) => {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [currentRosterName, setCurrentRosterName] = useState<string>("Roster");
   const [rosterList, setRosterList] = useState<string[]>(["Roster"]);
+  const [rosterListLoaded, setRosterListLoaded] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [nameToEdit, setNameToEdit] = useState<string>("");
   const [newName, setNewName] = useState<string>("");
   const [addName, setAddName] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  useEffect(() => {}, [rosterList]);
+  useEffect(() => {
+    const savedRosterList = localStorage.getItem("rosterList");
+    if (savedRosterList) {
+      setRosterList(JSON.parse(savedRosterList));
+    }
+    setRosterListLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (rosterListLoaded) {
+      localStorage.setItem("rosterList", JSON.stringify(rosterList));
+    }
+  }, [rosterList, rosterListLoaded]);
 
   const handleClick = (name: string) => {
     const currentAbsent = absentMap[rosterName] || [];
@@ -169,7 +189,7 @@ const Roster = ({ isNumbered, roster, rosterName, absentMap, setAbsentMap, onRos
             </button>
           </div>
 
-          { /* Add item validation */ }
+          {/* Add item validation */}
           {errorMessage && (
             <div className="text-danger fs-6">{errorMessage}</div>
           )}
@@ -192,7 +212,11 @@ const Roster = ({ isNumbered, roster, rosterName, absentMap, setAbsentMap, onRos
                   {isNumbered && <td>{index + 1}</td>}
                   <td
                     onClick={() => handleClick(name)}
-                    className={(absentMap[currentRosterName] || []).includes(name) ? "bg-danger" : ""}
+                    className={
+                      (absentMap[currentRosterName] || []).includes(name)
+                        ? "bg-danger"
+                        : ""
+                    }
                   >
                     {name}
                   </td>
