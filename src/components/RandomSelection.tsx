@@ -201,6 +201,8 @@ const handleGoBack = () => {
   localStorage.removeItem("roster");
   localStorage.removeItem("absentMap");
   localStorage.removeItem("selectedNames");
+  localStorage.removeItem("currentRosterName");
+  localStorage.removeItem("rosterList");
 
   setSelectedFile(null);
   setRoster([]);

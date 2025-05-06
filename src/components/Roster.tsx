@@ -28,20 +28,30 @@ const Roster = ({
   const [addName, setAddName] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
+  // Load in the data
   useEffect(() => {
     const savedRosterList = localStorage.getItem("rosterList");
+    const savedRosterName = localStorage.getItem("currentRosterName");
     if (savedRosterList) {
       setRosterList(JSON.parse(savedRosterList));
+    }
+    if (savedRosterName) {
+      const parsedCurrent = JSON.parse(savedRosterName);
+      setCurrentRosterName(parsedCurrent);  
+      onRosterChange(parsedCurrent);
     }
     setRosterListLoaded(true);
   }, []);
 
+  // Save the data
   useEffect(() => {
     if (rosterListLoaded) {
       localStorage.setItem("rosterList", JSON.stringify(rosterList));
+      localStorage.setItem("currentRosterName", JSON.stringify(currentRosterName));
     }
-  }, [rosterList, rosterListLoaded]);
+  }, [rosterList, rosterListLoaded, currentRosterName]);
 
+  // Mark as absent
   const handleClick = (name: string) => {
     const currentAbsent = absentMap[rosterName] || [];
     let updatedAbsent: string[];
@@ -67,6 +77,7 @@ const Roster = ({
       const updatedNames = [...rosterList, addName];
       setRosterList(updatedNames);
       setErrorMessage("");
+      setCurrentRosterName(addName)
     }
   };
 
