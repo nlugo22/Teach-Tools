@@ -1,6 +1,6 @@
 .roster-container {
   position: relative;
-  width: 10vw;
+  width: 15vw;
   height: 90vh;
   text-align: center;
   resize: both;
@@ -10,7 +10,7 @@
 .roster-title {
   margin: 0;
   text-align: center;
-  cursor: grab;
+  cursor: pointer;
   background-color: #343a40;
   color: white;
   padding: 10px;
