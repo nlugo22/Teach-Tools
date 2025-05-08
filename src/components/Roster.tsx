@@ -1,45 +1,44 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../styles/Roster.css";
+import RosterUploadButton from "./RosterUploadButton"
+import {listRosterNames, saveRoster} from "../utils/rosterStorage"
 
 interface Props {
   isNumbered: boolean;
   roster: string[];
   rosterName: string;
-  absentMap: Record<string, string[]>;
-  setAbsentMap: (map: Record<string, string[]>) => void;
+  absentList: string[];
+  setAbsentList: (absents: string[]) => void;
   onRosterChange: (newRoster: string) => void;
 }
 
 const Roster = ({
   isNumbered,
-  roster,
   rosterName,
-  absentMap,
-  setAbsentMap,
+  roster,
+  absentList,
+  setAbsentList,
   onRosterChange,
 }: Props) => {
+  const [uploadPrompted, setUploadPrompted] = useState<boolean>(false);
   const [showMenu, setShowMenu] = useState<boolean>(false);
-  const [currentRosterName, setCurrentRosterName] = useState<string>("Roster");
-  const [rosterList, setRosterList] = useState<string[]>(["Roster"]);
+  const [currentRosterName, setCurrentRosterName] = useState<string>("");
+  const [rosterList, setRosterList] = useState<string[]>([]);
   const [rosterListLoaded, setRosterListLoaded] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [nameToEdit, setNameToEdit] = useState<string>("");
   const [newName, setNewName] = useState<string>("");
   const [addName, setAddName] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load in the data
   useEffect(() => {
-    const savedRosterList = localStorage.getItem("rosterList");
-    const savedRosterName = localStorage.getItem("currentRosterName");
-    if (savedRosterList) {
-      setRosterList(JSON.parse(savedRosterList));
-    }
-    if (savedRosterName) {
-      const parsedCurrent = JSON.parse(savedRosterName);
-      setCurrentRosterName(parsedCurrent);  
-      onRosterChange(parsedCurrent);
-    }
+    const storedNames = listRosterNames();
+    setRosterList(storedNames);
+    const savedName = localStorage.getItem("currentRosterName");
+    const nameToLoad = savedName ? JSON.parse(savedName) : "Roster";
+    setCurrentRosterName(nameToLoad);
     setRosterListLoaded(true);
   }, []);
 
@@ -51,33 +50,47 @@ const Roster = ({
     }
   }, [rosterList, rosterListLoaded, currentRosterName]);
 
+  // Prompt for a roster upload if none exists on first use
+  useEffect(() => {
+    const savedRosters = listRosterNames();
+    const hasRosterData = savedRosters && savedRosters.length > 0;
+    if (!hasRosterData) {
+      setUploadPrompted(true);
+      fileInputRef.current?.click();
+    }
+  }, []);
+
   // Mark as absent
-  const handleClick = (name: string) => {
-    const currentAbsent = absentMap[rosterName] || [];
+  const handleMarkAbsent = (name: string) => {
     let updatedAbsent: string[];
 
-    if (currentAbsent.includes(name)) {
-      updatedAbsent = currentAbsent.filter((n) => n !== name);
+    if (absentList.includes(name)) {
+      updatedAbsent = absentList.filter((n) => n !== name);
     } else {
-      updatedAbsent = [...currentAbsent, name];
+      updatedAbsent = [...absentList, name];
     }
 
-    setAbsentMap({
-      ...absentMap,
-      [rosterName]: updatedAbsent,
-    });
+    setAbsentList(updatedAbsent);
   };
 
   const addItems = () => {
-    if (!addName) {
+    if (!addName.trim()) {
       setErrorMessage("You need to enter a name!");
     } else if (rosterList.includes(addName)) {
       setErrorMessage("You need to enter a unique name!");
     } else {
       const updatedNames = [...rosterList, addName];
-      setRosterList(updatedNames);
+      setCurrentRosterName(addName);
+      onRosterChange(addName);
       setErrorMessage("");
-      setCurrentRosterName(addName)
+      saveRoster(addName, {
+        rosterList: [],
+        absentList: [],
+        selectedNames: [],
+        spinnerNames: [],
+        spinnerCount: 1,
+      });
+      setRosterList(listRosterNames());
     }
   };
 
@@ -128,6 +141,7 @@ const Roster = ({
       {showMenu && (
         <div>
           {rosterList.map((roster) =>
+
             // Show edit input and save if editing
             isEditing && nameToEdit === roster ? (
               <div key={roster} className="d-flex align-items-center gap-2">
@@ -171,6 +185,32 @@ const Roster = ({
                 >
                   ✏️
                 </button>
+                <RosterUploadButton 
+                  onFileUpload={(content) => {
+                    const rosterName = prompt("Enter a name for your roster.");
+                    const storedNames = listRosterNames();
+                    if (!rosterName || rosterName.trim() === "") {
+                      alert("Roster name is required");
+                      return;
+                    } else if (storedNames.includes(rosterName)) {
+                      alert("Roster name must be unique!");
+                      return;
+                    }
+
+                    const names = content.split("\n").map((name) => name.trim()).filter(Boolean);
+
+                    setRosterList(names);
+                    setCurrentRosterName(rosterName);
+                    onRosterChange(rosterName);
+                    saveRoster(rosterName, {
+                      rosterList: names,
+                      absentList: [],
+                      selectedNames: [],
+                      spinnerNames: [],
+                      spinnerCount: 1,
+                    })
+                  }}
+                />
                 <button
                   className="btn btn-sm btn-outline-light"
                   onClick={() => deleteItems(roster)}
@@ -222,9 +262,9 @@ const Roster = ({
                 <tr key={index} className="roster-rows">
                   {isNumbered && <td>{index + 1}</td>}
                   <td
-                    onClick={() => handleClick(name)}
+                    onClick={() => handleMarkAbsent(name)}
                     className={
-                      (absentMap[currentRosterName] || []).includes(name)
+                      (absentList).includes(name)
                         ? "bg-danger"
                         : ""
                     }
