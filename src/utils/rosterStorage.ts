@@ -1,16 +1,25 @@
 export type RosterData = {
     rosterList: string[],
-    absentList: string[],
-    selectedNames: string[],
-    spinnerNames: string[],
-    spinnerCount: number
+    absentList?: string[],
+    selectedNames?: string[],
+    spinnerNames?: string[],
+    spinnerCount?: number
 }
 
-export const saveRoster = (name: string, data: RosterData) => {
+export const saveRoster = (name: string, partialData: RosterData) => {
     const allRosters = JSON.parse(localStorage.getItem("allRosters") || "{}");
-    allRosters[name] = data;
+
+    const fullData: RosterData = {
+        rosterList: partialData.rosterList,
+        absentList: partialData.absentList ?? [];
+        selectedNames: partialData.selectedNames ?? [];
+        spinnerNames: partialData.spinnerNames ?? [];
+        spinnerCount: partialData.spinnerCount ?? 1;
+    }
+
+    allRosters[name] = fullData;
     localStorage.setItem("allRosters", JSON.stringify(allRosters));
-    console.log(`Saved roster: ${name} with data: ${data}`);
+    console.log(`Saved roster: ${name} with data: ${fullData}`);
 };
 
 export const loadRoster = (name: string) => {
