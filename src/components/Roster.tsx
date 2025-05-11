@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { parseRosterUpload } from "../utils/parseRosterUpload";
 import "../styles/Roster.css";
 import RosterUploadButton from "./RosterUploadButton";
-import { listRosterNames, saveRoster } from "../utils/rosterStorage";
+import { listRosterNames } from "../utils/rosterStorage";
 
 interface Props {
   isNumbered: boolean;
@@ -52,7 +53,7 @@ const Roster = ({
     setAbsentList(updated);
   };
 
-  const handleAddclick = () => {
+  const handleAddClick = () => {
     const value = addNameRef.current?.value.trim();
     if (!value) return;
 
@@ -61,7 +62,8 @@ const Roster = ({
       addNameRef.current.value = "";
     }
 
-    setRosterNames(listRosterNames());
+    // setRosterNames(listRosterNames());
+    setShowMenu(false);
   };
 
   const startEdit = (oldName: string) => {
@@ -138,26 +140,12 @@ const Roster = ({
 
           <RosterUploadButton
             onFileUpload={(content) => {
-              const rosterName = prompt(
-                "Enter a name for your uploaded roster:",
-              );
-              const storedNames = listRosterNames();
+              const result = parseRosterUpload(content);
+              if (!result) return;
 
-              if (!rosterName || rosterName.trim() === "") {
-                alert("Roster name is required");
-                return;
-              } else if (storedNames.includes(rosterName)) {
-                alert("Roster name must be unique!");
-                return;
-              }
-
-              const names = content
-                .split("\n")
-                .map((name) => name.trim())
-                .filter(Boolean);
+              const { rosterName, names } = result;
 
               handleUploadRoster(rosterName, names);
-              setRosterNames(listRosterNames());
               setShowMenu(false);
             }}
           />

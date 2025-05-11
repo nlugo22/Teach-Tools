@@ -39,11 +39,12 @@ const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
         <input
           type="file"
           accept=".txt"
+          className="form-control form-control-sm"
           onChange={handleFileChange}
           ref={ref}
         />
         <button
-          className="btn btn-primary text-white"
+          className="btn btn-sm btn-primary text-white"
           onClick={handleFileUpload}
           disabled={!file}
         >

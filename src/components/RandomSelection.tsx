@@ -1,8 +1,4 @@
 import { useEffect, useState } from "react";
-import "../styles/RandomSelection.css";
-import SpinNames from "./SpinNames";
-import Roster from "./Roster";
-import RandomSelectControls from "./RandomSelectControls";
 import {
   loadRoster,
   saveRoster,
@@ -10,6 +6,12 @@ import {
   deleteRoster,
   listRosterNames,
 } from "../utils/rosterStorage";
+import { parseRosterUpload } from "../utils/parseRosterUpload";
+import "../styles/RandomSelection.css";
+import SpinNames from "./SpinNames";
+import Roster from "./Roster";
+import RandomSelectControls from "./RandomSelectControls";
+import RosterUploadButton from "./RosterUploadButton";
 
 const RandomSelection = () => {
   // Shared state
@@ -24,7 +26,7 @@ const RandomSelection = () => {
   const [sortedRoster, setSortedRoster] = useState<string[]>([]);
 
   const [isRosterLoaded, setIsRosterLoaded] = useState<boolean>(false);
-  const [isRosterDisplayed, setIsRosterDisplayed] = useState<boolean>(false);
+  const [isRosterDisplayed, setIsRosterDisplayed] = useState<boolean>(true);
   const [isNumbered, setIsNumbered] = useState<boolean>(false);
   const [isSorted, setIsSorted] = useState<boolean>(false);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -178,7 +180,6 @@ const RandomSelection = () => {
     }
 
     saveRoster(newRosterName, { rosterList: rosterList });
-
     setSelectedRoster(newRosterName);
     restoreDefaultValues();
   };
@@ -251,14 +252,28 @@ const RandomSelection = () => {
   const handleGoBack = () => {
     resetAll();
     setRosterList([]);
-    setIsRosterDisplayed(false);
+    setIsRosterDisplayed(true);
     setIsRosterLoaded(false);
     restoreDefaultValues();
   };
 
   return (
     <>
+      {!isRosterLoaded && (
+        <div className="upload-container">
+          <h2>Upload Student Roster</h2>
+          <RosterUploadButton
+            onFileUpload={(content) => {
+              const result = parseRosterUpload(content);
+              if (!result) return;
+              handleUploadRoster(result.rosterName, result.names);
+            }}
+          />
+        </div>
+      )}
+
       {/* MAIN CONTENT */}
+      {isRosterLoaded && (
         <div className="main-container">
           {/* CONTROLS SECTION */}
           <RandomSelectControls
@@ -308,6 +323,7 @@ const RandomSelection = () => {
             </div>
           </div>
         </div>
+      )}
     </>
   );
 };
