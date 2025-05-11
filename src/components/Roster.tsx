@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "../styles/Roster.css";
-import RosterUploadButton from "./RosterUploadButton"
-import {listRosterNames, saveRoster} from "../utils/rosterStorage"
+import RosterUploadButton from "./RosterUploadButton";
+import { listRosterNames, saveRoster } from "../utils/rosterStorage";
 
 interface Props {
   isNumbered: boolean;
@@ -11,7 +11,7 @@ interface Props {
   setAbsentList: (absents: string[]) => void;
   handleRosterChange: (newRoster: string) => void;
   handleAddRoster: (newRosterName: string) => void;
-  handleUploadRoster: (newRosterName: string, newRosterList: string[]) => void; 
+  handleUploadRoster: (newRosterName: string, newRosterList: string[]) => void;
   handleEditRoster: (newName: string, oldName: string) => void;
   handleDeleteRoster: (rosterName: string) => void;
   errorMessage: string;
@@ -75,7 +75,7 @@ const Roster = ({
     if (confirm(`Are you sure you want to delete ${name}`)) {
       handleDeleteRoster(name);
     }
-  }
+  };
 
   return (
     <div className="roster-container">
@@ -89,7 +89,7 @@ const Roster = ({
         </button>
       </div>
 
-{showMenu && (
+      {showMenu && (
         <div className="roster-menu">
           <ul className="list-group mb-2">
             {rosterNames.map((name) => (
@@ -138,7 +138,9 @@ const Roster = ({
 
           <RosterUploadButton
             onFileUpload={(content) => {
-              const rosterName = prompt("Enter a name for your uploaded roster:");
+              const rosterName = prompt(
+                "Enter a name for your uploaded roster:",
+              );
               const storedNames = listRosterNames();
 
               if (!rosterName || rosterName.trim() === "") {
@@ -160,7 +162,9 @@ const Roster = ({
             }}
           />
 
-          {errorMessage && <div className="text-danger fs-6 mt-1">{errorMessage}</div>}
+          {errorMessage && (
+            <div className="text-danger fs-6 mt-1">{errorMessage}</div>
+          )}
         </div>
       )}
 
@@ -178,7 +182,9 @@ const Roster = ({
                 {isNumbered && <td>{index + 1}</td>}
                 <td
                   onClick={() => handleMarkAbsent(name)}
-                  className={absentList.includes(name) ? "bg-danger text-white" : ""}
+                  className={
+                    absentList.includes(name) ? "bg-danger text-white" : ""
+                  }
                 >
                   {name}
                 </td>

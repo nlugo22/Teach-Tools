@@ -11,10 +11,10 @@ export const saveRoster = (name: string, partialData: RosterData) => {
 
     const fullData: RosterData = {
         rosterList: partialData.rosterList,
-        absentList: partialData.absentList ?? [];
-        selectedNames: partialData.selectedNames ?? [];
-        spinnerNames: partialData.spinnerNames ?? [];
-        spinnerCount: partialData.spinnerCount ?? 1;
+        absentList: partialData.absentList ?? [],
+        selectedNames: partialData.selectedNames ?? [],
+        spinnerNames: partialData.spinnerNames ?? [],
+        spinnerCount: partialData.spinnerCount ?? 1,
     }
 
     allRosters[name] = fullData;
