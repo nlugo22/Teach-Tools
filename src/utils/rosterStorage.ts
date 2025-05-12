@@ -31,11 +31,14 @@ export const loadRoster = (name: string) => {
 export const deleteRoster = (name: string) => {
     const allRosters = JSON.parse(localStorage.getItem("allRosters") || "{}");
     delete allRosters[name];
+    localStorage.setItem("allRosters", JSON.stringify(allRosters));
     console.log(`Deleted ${name}`);
+    console.log(Object.keys(allRosters));
 }
 
 export const listRosterNames = () => {
     const allRosters = JSON.parse(localStorage.getItem("allRosters") || "{}");
+    console.log(Object.keys(allRosters));
     return Object.keys(allRosters);
 }
 

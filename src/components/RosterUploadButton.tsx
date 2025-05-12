@@ -35,7 +35,7 @@ const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
     };
 
     return (
-      <div className="">
+      <div className="card">
         <input
           type="file"
           accept=".txt"

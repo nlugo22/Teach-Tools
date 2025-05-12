@@ -17,12 +17,13 @@ const RandomSelection = () => {
   // Shared state
   const [rosterList, setRosterList] = useState<string[]>([]);
   const [absentList, setAbsentList] = useState<string[]>([]);
+  const [allRosters, setAllRosters] = useState<string[]>([]);
 
   const [spinnerCount, setSpinnerCount] = useState(1); // num of spinners on the screen
   const [spinnerNames, setSpinnerNames] = useState<string[]>([]); // manages the names assigned on each spinner
 
   const [selectedNames, setSelectedNames] = useState<string[]>([]);
-  const [selectedRoster, setSelectedRoster] = useState<string>("Roster");
+  const [selectedRoster, setSelectedRoster] = useState<string>("");
   const [sortedRoster, setSortedRoster] = useState<string[]>([]);
 
   const [isRosterLoaded, setIsRosterLoaded] = useState<boolean>(false);
@@ -35,29 +36,33 @@ const RandomSelection = () => {
 
   // Initial check for existing roster
   useEffect(() => {
-    const savedRosters = listRosterNames();
-    if (savedRosters.length > 0) {
+    if (allRosters.length > 0) {
       const lastUsed = localStorage.getItem("lastUsedRoster");
       let rosterToLoad = "";
-      if (lastUsed && savedRosters.includes(JSON.parse(lastUsed))) {
-        rosterToLoad = JSON.parse(lastUsed);
+      if (lastUsed && allRosters.includes(lastUsed)) {
+        rosterToLoad = lastUsed;
       } else {
-        rosterToLoad = savedRosters[0];
+        rosterToLoad = allRosters[0];
       }
 
       setSelectedRoster(rosterToLoad);
     }
-  }, []);
+  }, [allRosters]);
 
-  /* load save data on component mount */
+  // Load when the selectedRoster changes
   useEffect(() => {
-    const data = loadRoster(selectedRoster);
-    if (data) {
-      setRosterList(data.rosterList);
-      setAbsentList(data.absentList);
-      setSelectedNames(data.selectedNames);
-      setSpinnerCount(data.spinnerCount);
-      setIsRosterLoaded(true);
+    if (selectedRoster) {
+      const data = loadRoster(selectedRoster);
+      if (data) {
+        setRosterList(data.rosterList);
+        setAbsentList(data.absentList);
+        setSelectedNames(data.selectedNames);
+        setSpinnerCount(data.spinnerCount);
+        setSpinnerNames(data.spinnerNames);
+        setIsRosterLoaded(true);
+
+        localStorage.setItem("lastUsedRoster", selectedRoster);
+      }
     }
   }, [selectedRoster]);
 
@@ -65,23 +70,20 @@ const RandomSelection = () => {
   useEffect(() => {
     if (isRosterLoaded) {
       saveRoster(selectedRoster, {
-        rosterList,
-        absentList,
-        selectedNames,
-        spinnerNames,
-        spinnerCount,
+        rosterList: rosterList,
+        absentList: absentList,
+        selectedNames: selectedNames,
+        spinnerNames: spinnerNames,
+        spinnerCount: spinnerCount,
       });
     }
-  }, [
-    rosterList,
-    absentList,
-    selectedNames,
-    spinnerNames,
-    spinnerCount,
-    selectedRoster,
-    isRosterLoaded,
-  ]);
+  }, [absentList, selectedNames, spinnerCount]);
 
+  useEffect(() => {
+    setAllRosters(listRosterNames());
+  }, []);
+
+  // Sort the roster
   useEffect(() => {
     const sorted = [...rosterList].sort();
     setSortedRoster(sorted);
@@ -90,6 +92,7 @@ const RandomSelection = () => {
   const handleRosterDisplayed = () => setIsRosterDisplayed((prev) => !prev);
   const handleIsNumbered = () => setIsNumbered((prev) => !prev);
   const handleSort = () => setIsSorted((prev) => !prev);
+  const refreshAllRosters = () => setAllRosters(listRosterNames());
 
   /*******************/
   /* SPINNER SECTION */
@@ -179,8 +182,11 @@ const RandomSelection = () => {
       return;
     }
 
+    localStorage.setItem("lastUsedRoster", newRosterName);
+
     saveRoster(newRosterName, { rosterList: rosterList });
     setSelectedRoster(newRosterName);
+    refreshAllRosters();
     restoreDefaultValues();
   };
 
@@ -199,41 +205,46 @@ const RandomSelection = () => {
     });
 
     setSelectedRoster(newRosterName);
+    refreshAllRosters();
     restoreDefaultValues();
   };
 
-  const handleEditRoster = (newName: string, oldName: string) => {
+  const handleEditRoster = (oldName: string) => {
+    const newName = prompt("Enter a new roster name!");
+    if (!newName) return;
     const error = validateRosterName(newName);
     if (error) {
       setErrorMessage(error);
       return;
     }
 
-    // Update name in roster list
-    const updatedRosterList = rosterList.map((name) =>
-      name === oldName ? newName : name,
-    );
-    setRosterList(updatedRosterList);
-    setSelectedRoster(newName);
-
     // Update local storage
     const data = loadRoster(oldName);
-    if (data) {
-      saveRoster(newName, data);
-      deleteRoster(oldName);
+    if (!data) {
+      setErrorMessage("Roster could not be found!");
+      return;
     }
+    saveRoster(newName, data);
+    deleteRoster(oldName);
+    setSelectedRoster(newName);
+    refreshAllRosters();
   };
 
   const handleDeleteRoster = (deleteName: string) => {
-    if (rosterList.length === 1) {
+    if (allRosters.length === 1) {
       alert("At least one roster must remain.");
       return;
     }
-    const updatedRosterList = rosterList.filter((name) => name !== deleteName);
-    setRosterList(updatedRosterList);
+
+    if (!confirm(`Are you sure you want to delete ${deleteName}`)) return;
     deleteRoster(deleteName);
-    if (selectedRoster === deleteName) {
-      setSelectedRoster(updatedRosterList[0] || "");
+    refreshAllRosters();
+
+    const newSelected = selectedRoster;
+
+    // If the current roster is the one being deleted
+    if (newSelected === deleteName) {
+      setSelectedRoster(allRosters[0] || "");
     }
   };
 
@@ -252,6 +263,7 @@ const RandomSelection = () => {
   const handleGoBack = () => {
     resetAll();
     setRosterList([]);
+    setAllRosters([]);
     setIsRosterDisplayed(true);
     setIsRosterLoaded(false);
     restoreDefaultValues();
@@ -259,7 +271,7 @@ const RandomSelection = () => {
 
   return (
     <>
-      {!isRosterLoaded && (
+      {allRosters.length === 0 && (
         <div className="upload-container">
           <h2>Upload Student Roster</h2>
           <RosterUploadButton
@@ -273,7 +285,7 @@ const RandomSelection = () => {
       )}
 
       {/* MAIN CONTENT */}
-      {isRosterLoaded && (
+      {allRosters.length > 0 && (
         <div className="main-container">
           {/* CONTROLS SECTION */}
           <RandomSelectControls
@@ -300,6 +312,7 @@ const RandomSelection = () => {
               <div className="me-auto">
                 <Roster
                   isNumbered={isNumbered}
+                  allRosters={allRosters}
                   roster={isSorted ? sortedRoster : rosterList}
                   rosterName={selectedRoster}
                   absentList={absentList}
