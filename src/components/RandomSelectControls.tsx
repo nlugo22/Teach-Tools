@@ -46,6 +46,15 @@ const RandomSelectControls = ({
 
       const key = event.key.toLowerCase();
 
+      // If key is a digit between 1 and 9
+      if (/^[1-9]$/.test(key)) {
+        const number = parseInt(key, 10);
+        if (number <= numAvailableNames) {
+          handleSpinnerCountChange(number);
+        }
+        return;
+      }
+
       switch (key) {
         case "r":
           handleReset();
@@ -73,7 +82,7 @@ const RandomSelectControls = ({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [numAvailableNames]);
 
   return (
     <div className="random-select-controls">
