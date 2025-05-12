@@ -69,13 +69,16 @@ const RandomSelection = () => {
   /* save names and roster */
   useEffect(() => {
     if (isRosterLoaded) {
-      saveRoster(selectedRoster, {
-        rosterList: rosterList,
-        absentList: absentList,
-        selectedNames: selectedNames,
-        spinnerNames: spinnerNames,
-        spinnerCount: spinnerCount,
+      setTimeout(() => {
+        saveRoster(selectedRoster, {
+          rosterList: rosterList,
+          absentList: absentList,
+          selectedNames: selectedNames,
+          spinnerNames: spinnerNames,
+          spinnerCount: spinnerCount,
       });
+
+      }, 1000)
     }
   }, [absentList, selectedNames, spinnerCount]);
 
@@ -204,9 +207,13 @@ const RandomSelection = () => {
       rosterList: cleanedNames,
     });
 
-    setSelectedRoster(newRosterName);
     refreshAllRosters();
-    restoreDefaultValues();
+
+    setTimeout(() => {
+      setSelectedRoster(newRosterName);
+      localStorage.setItem("lastUsedRoster", newRosterName);
+      restoreDefaultValues();
+    }, 1000);
   };
 
   const handleEditRoster = (oldName: string) => {
@@ -263,10 +270,11 @@ const RandomSelection = () => {
   const handleGoBack = () => {
     resetAll();
     setRosterList([]);
-    setAllRosters([]);
+    setSelectedRoster("");
     setIsRosterDisplayed(true);
     setIsRosterLoaded(false);
     restoreDefaultValues();
+    refreshAllRosters();
   };
 
   return (

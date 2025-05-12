@@ -25,6 +25,7 @@ const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
         const fileContent = e.target?.result;
         if (typeof fileContent === "string") {
           onFileUpload(fileContent);
+          setFile(null);
         }
       };
 

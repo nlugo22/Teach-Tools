@@ -45,5 +45,6 @@ export const listRosterNames = () => {
 export const resetAll = () => {
     if (confirm("You want to delete all data for every roster?")) {
         localStorage.removeItem("allRosters");
+        localStorage.removeItem("lastUsedRoster");
     }
 }

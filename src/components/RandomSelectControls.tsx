@@ -38,6 +38,12 @@ const RandomSelectControls = ({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+
+      if (activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA" || (activeElement as HTMLElement).isContentEditable)) {
+        return;
+      }
+
       const key = event.key.toLowerCase();
 
       switch (key) {
