@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import "../styles/RandomSelectControls.css";
-import { resetAll } from "../utils/rosterStorage";
 
 interface Props {
   numAvailableNames: number;
