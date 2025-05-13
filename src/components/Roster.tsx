@@ -8,6 +8,7 @@ interface Props {
   allRosters: string[];
   roster: string[];
   rosterName: string;
+  selectedNames: string[];
   absentList: string[];
   setAbsentList: (absents: string[]) => void;
   handleRosterChange: (newRoster: string) => void;
@@ -23,6 +24,7 @@ const Roster = ({
   allRosters,
   roster,
   rosterName,
+  selectedNames,
   absentList,
   setAbsentList,
   handleRosterChange,
@@ -70,6 +72,7 @@ const Roster = ({
         </button>
       </div>
 
+      { /* The list of stored rosters */ }
       {showMenu && (
         <div className="roster-menu">
           <ul className="list-group mb-2">
@@ -78,6 +81,7 @@ const Roster = ({
                 key={name}
                 className="d-flex justify-content-between align-items-center"
               >
+                { /* Where the roster name is displayed */ }
                 <span
                   className="text-truncate w-100"
                   style={{ cursor: "pointer" }}
@@ -88,13 +92,17 @@ const Roster = ({
                 >
                   {name}
                 </span>
+
                 <div className="btn-group btn-group-sm">
+                { /* Edit the name */ }
                   <button
                     className="btn btn-outline-primary"
                     onClick={() => handleEditRoster(name)}
                   >
                     ✏️
                   </button>
+
+                  { /* Delete the roster */ }
                   <button
                     className="btn btn-outline-danger"
                     onClick={() => handleDeleteRoster(name)}
@@ -106,6 +114,7 @@ const Roster = ({
             ))}
           </ul>
 
+          { /* Add a new roster */ }
           <div className="d-flex mb-2">
             <input
               className="form-control form-control-sm me-2"
@@ -118,6 +127,7 @@ const Roster = ({
             </button>
           </div>
 
+          { /* Upload a roster */}
           <RosterUploadButton
             onFileUpload={(content) => {
               const result = parseRosterUpload(content);
@@ -130,12 +140,14 @@ const Roster = ({
             }}
           />
 
+          { /* Validation for roster naming */ }
           {errorMessage && (
             <div className="text-danger fs-6 mt-1">{errorMessage}</div>
           )}
         </div>
       )}
 
+      { /* Where the list of names is displayed */ }
       <div className="table-container">
         <table className="table table-striped table-bordered">
           <thead className="table-dark">
@@ -151,7 +163,8 @@ const Roster = ({
                 <td
                   onClick={() => handleMarkAbsent(name)}
                   className={
-                    absentList.includes(name) ? "bg-danger text-white" : ""
+                    (absentList.includes(name) ? "bg-danger text-white" : "") +
+                    (selectedNames.includes(name) ? "bg-secondary" : "")
                   }
                 >
                   {name}

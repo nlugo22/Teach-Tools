@@ -323,6 +323,7 @@ const RandomSelection = () => {
                   allRosters={allRosters}
                   roster={isSorted ? sortedRoster : rosterList}
                   rosterName={selectedRoster}
+                  selectedNames={selectedNames}
                   absentList={absentList}
                   setAbsentList={setAbsentList}
                   handleRosterChange={handleRosterChange}
