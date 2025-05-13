@@ -14,7 +14,7 @@ interface Props {
   handleRosterChange: (newRoster: string) => void;
   handleAddRoster: (newRosterName: string) => void;
   handleUploadRoster: (newRosterName: string, newRosterList: string[]) => void;
-  handleEditRoster: (newName: string) => void;
+  handleEditRoster: (oldName: string, newName: string) => void;
   handleDeleteRoster: (rosterName: string) => void;
   errorMessage: string;
 }
@@ -35,7 +35,8 @@ const Roster = ({
   errorMessage,
 }: Props) => {
   const [showMenu, setShowMenu] = useState<boolean>(false);
-
+  const [editingName, setEditingName] = useState<string | null>(null);
+  const [newNameValue, setNewNameValue] = useState<string>("");
   const addNameRef = useRef<HTMLInputElement>(null);
 
   // Mark as absent
@@ -81,23 +82,52 @@ const Roster = ({
                 key={name}
                 className="d-flex justify-content-between align-items-center"
               >
-                { /* Where the roster name is displayed */ }
-                <span
-                  className="text-truncate w-100"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    handleRosterChange(name);
-                    setShowMenu(false);
-                  }}
-                >
-                  {name}
-                </span>
-
+                { /* Where the roster name is displayed */}
+                {editingName === name ? (
+                  <input
+                    type="text" 
+                    className="form-control form-control-sm"
+                    value={newNameValue}
+                    autoFocus
+                    onChange={(e) => setNewNameValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        const trimmed = newNameValue.trim();
+                        if (trimmed && trimmed !== name) {
+                          handleEditRoster(name, trimmed)
+                        }
+                        setShowMenu(false);
+                        setEditingName(null);
+                        setNewNameValue("");
+                      } else if (e.key === "Escape") {
+                        setEditingName(null);
+                      }
+                    }}
+                    onBlur={() => setEditingName(null)}
+                  / >
+                ) : (
+                  <span
+                    className="text-truncate w-100"
+                    style={{ cursor: "pointer", userSelect: "none" }}
+                    onClick={() => {
+                      handleRosterChange(name);
+                      setShowMenu(false);
+                    }}
+                  >
+                    {name}
+                  </span>
+                )
+                }
+                
                 <div className="btn-group btn-group-sm">
                 { /* Edit the name */ }
                   <button
                     className="btn btn-outline-primary"
-                    onClick={() => handleEditRoster(name)}
+                    onClick={() => {
+                      setEditingName(name)
+                      setNewNameValue(name)
+                    }
+                    }
                   >
                     ✏️
                   </button>
@@ -120,7 +150,7 @@ const Roster = ({
               className="form-control form-control-sm me-2"
               type="text"
               ref={addNameRef}
-              placeholder="New roster name"
+              placeholder="New roster for current class."
             />
             <button className="btn btn-sm btn-success" onClick={handleAddClick}>
               Add
@@ -149,14 +179,14 @@ const Roster = ({
 
       { /* Where the list of names is displayed */ }
       <div className="table-container">
-        <table className="table table-striped table-bordered">
+        <table className="table table-striped table-bordered" style={{userSelect: "none"}}>
           <thead className="table-dark">
             <tr>
               {isNumbered && <th scope="col">#</th>}
               <th scope="col">Name</th>
             </tr>
           </thead>
-          <tbody style={{ cursor: "pointer" }}>
+          <tbody style={{ cursor: "pointer"}}>
             {roster.map((name, index) => (
               <tr key={index} className="roster-rows">
                 {isNumbered && <td>{index + 1}</td>}

@@ -95,7 +95,10 @@ const RandomSelection = () => {
   const handleRosterDisplayed = () => setIsRosterDisplayed((prev) => !prev);
   const handleIsNumbered = () => setIsNumbered((prev) => !prev);
   const handleSort = () => setIsSorted((prev) => !prev);
-  const refreshAllRosters = () => setAllRosters(listRosterNames());
+  const refreshAllRosters = () => {
+    const storedRosters = listRosterNames();
+    setAllRosters(storedRosters);
+  }
 
   /*******************/
   /* SPINNER SECTION */
@@ -216,8 +219,7 @@ const RandomSelection = () => {
     }, 1000);
   };
 
-  const handleEditRoster = (oldName: string) => {
-    const newName = prompt("Enter a new roster name!");
+  const handleEditRoster = (oldName: string, newName: string) => {
     if (!newName) return;
     const error = validateRosterName(newName);
     if (error) {
@@ -233,7 +235,13 @@ const RandomSelection = () => {
     }
     saveRoster(newName, data);
     deleteRoster(oldName);
-    setSelectedRoster(newName);
+
+    const updated = listRosterNames();
+    if (updated.includes(newName)) {
+      setSelectedRoster(newName);
+      localStorage.setItem("lastUsedRoster", newName);
+    }
+
     refreshAllRosters();
   };
 

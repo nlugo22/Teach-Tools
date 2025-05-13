@@ -85,7 +85,7 @@ const RandomSelectControls = ({
   }, [numAvailableNames]);
 
   return (
-    <div className="random-select-controls">
+    <div className="random-select-controls" style={{userSelect: "none"}}>
       {/* GO BACK TO UPLOAD PAGE */}
       <button className="btn btn-sm btn-danger" onClick={handleGoBack}>
         Back
