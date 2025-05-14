@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  Users,
   Shuffle,
   Eye,
   EyeOff,
@@ -9,10 +8,11 @@ import {
   Trash2,
   Undo2,
   XCircle,
-  Plus, // Importing Plus icon for spinner count selection
+  Plus,
 } from "lucide-react";
 
 interface Props {
+  numAvailableNames: number;
   spinnerCount: number;
   setSpinnerCount: (count: number) => void;
   handleSpinning: () => void;
@@ -25,6 +25,7 @@ interface Props {
   handleSort: () => void;
   handleReset: () => void;
   handleClearAbsent: () => void;
+  handleSpinnerCountChange: (count: number) => void;
   handleGoBack: () => void;
   selectedNames: string[];
   absentList: string[];
@@ -33,7 +34,7 @@ interface Props {
 
 const RandomSelectControls = ({
   spinnerCount,
-  setSpinnerCount,
+  numAvailableNames,
   handleSpinning,
   isSpinning,
   handleRosterDisplayed,
@@ -45,16 +46,117 @@ const RandomSelectControls = ({
   handleReset,
   handleClearAbsent,
   handleGoBack,
+  handleSpinnerCountChange,
   selectedNames,
   absentList,
   rosterList,
 }: Props) => {
+  const spinButtonRef = useRef<HTMLButtonElement>(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+
+      if (
+        activeElement &&
+        (activeElement.tagName === "INPUT" ||
+          activeElement.tagName === "TEXTAREA" ||
+          (activeElement as HTMLElement).isContentEditable)
+      ) {
+        return;
+      }
+
+      const key = event.key.toLowerCase();
+
+      // If key is a digit between 1 and 9
+      if (/^[1-9]$/.test(key)) {
+        const number = parseInt(key, 10);
+        if (number <= numAvailableNames) {
+          handleSpinnerCountChange(number);
+        }
+        return;
+      }
+
+      switch (key) {
+        case "r":
+          handleReset();
+          break;
+        case " ":
+          event.preventDefault();
+          spinButtonRef.current?.click();
+          break;
+        case "c":
+          handleClearAbsent();
+          break;
+        case "s":
+          handleSort();
+          break;
+        case "e":
+          handleIsNumbered();
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [numAvailableNames]);
+
   const handleSelectCount = (count: number) => {
-    setSpinnerCount(count);
+    handleSpinnerCountChange(count);
     setIsDropdownVisible(false); // Close dropdown after selection
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      // Prevent keybinding from affecting form inputs
+      if (
+        activeElement &&
+        (activeElement.tagName === "INPUT" ||
+          activeElement.tagName === "TEXTAREA" ||
+          (activeElement as HTMLElement).isContentEditable)
+      ) {
+        return;
+      }
+
+      const key = event.key.toLowerCase();
+      switch (key) {
+        case " ":
+          event.preventDefault();
+          handleSpinning();
+          break;
+        case "r":
+          handleReset();
+          break;
+        case "c":
+          handleClearAbsent();
+          break;
+        case "s":
+          handleSort();
+          break;
+        case "e":
+          handleIsNumbered();
+          break;
+        case "b":
+          handleGoBack();
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col gap-3 w-full sm:max-w-xs">
