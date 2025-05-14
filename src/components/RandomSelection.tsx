@@ -7,8 +7,7 @@ import {
   listRosterNames,
 } from "../utils/rosterStorage";
 import { parseRosterUpload } from "../utils/parseRosterUpload";
-import "../styles/RandomSelection.css";
-import SpinNames from "./SpinNames";
+import { SpinNames } from "./SpinNames";
 import Roster from "./Roster";
 import RandomSelectControls from "./RandomSelectControls";
 import RosterUploadButton from "./RosterUploadButton";
@@ -19,9 +18,8 @@ const RandomSelection = () => {
   const [absentList, setAbsentList] = useState<string[]>([]);
   const [allRosters, setAllRosters] = useState<string[]>([]);
 
-  const [spinnerCount, setSpinnerCount] = useState(1); // num of spinners on the screen
-  const [spinnerNames, setSpinnerNames] = useState<string[]>([]); // manages the names assigned on each spinner
-
+  const [spinnerCount, setSpinnerCount] = useState(1);
+  const [spinnerNames, setSpinnerNames] = useState<string[]>([]);
   const [selectedNames, setSelectedNames] = useState<string[]>([]);
   const [selectedRoster, setSelectedRoster] = useState<string>("");
   const [sortedRoster, setSortedRoster] = useState<string[]>([]);
@@ -66,7 +64,6 @@ const RandomSelection = () => {
     }
   }, [selectedRoster]);
 
-  /* save names and roster */
   useEffect(() => {
     if (isRosterLoaded) {
       setTimeout(() => {
@@ -76,9 +73,8 @@ const RandomSelection = () => {
           selectedNames: selectedNames,
           spinnerNames: spinnerNames,
           spinnerCount: spinnerCount,
-      });
-
-      }, 1000)
+        });
+      }, 1000);
     }
   }, [absentList, selectedNames, spinnerCount]);
 
@@ -98,7 +94,7 @@ const RandomSelection = () => {
   const refreshAllRosters = () => {
     const storedRosters = listRosterNames();
     setAllRosters(storedRosters);
-  }
+  };
 
   /*******************/
   /* SPINNER SECTION */
@@ -152,8 +148,6 @@ const RandomSelection = () => {
       setSelectedNames((prevNames) => [...prevNames, ...finalNames]);
       setIsSpinning(false);
 
-      /* Adjust spinner count */
-      // const remainingNamesCount = rosterList.length - selectedNames.length;
       const remainingNamesCount = calculateNumAvailableNames();
       if (spinnerCount > remainingNamesCount) {
         setSpinnerCount(remainingNamesCount);
@@ -180,7 +174,6 @@ const RandomSelection = () => {
   const handleRosterChange = (nextRoster: string) =>
     setSelectedRoster(nextRoster);
 
-  // Add a new roter using the current roster list
   const handleAddRoster = (newRosterName: string) => {
     const error = validateRosterName(newRosterName);
     if (error) {
@@ -196,7 +189,6 @@ const RandomSelection = () => {
     restoreDefaultValues();
   };
 
-  // Add a new roster using uploaded list
   const handleUploadRoster = (newRosterName: string, names: string[]) => {
     const error = validateRosterName(newRosterName);
     if (error) {
@@ -227,7 +219,6 @@ const RandomSelection = () => {
       return;
     }
 
-    // Update local storage
     const data = loadRoster(oldName);
     if (!data) {
       setErrorMessage("Roster could not be found!");
@@ -257,7 +248,6 @@ const RandomSelection = () => {
 
     const newSelected = selectedRoster;
 
-    // If the current roster is the one being deleted
     if (newSelected === deleteName) {
       setSelectedRoster(allRosters[0] || "");
     }
@@ -274,7 +264,6 @@ const RandomSelection = () => {
     }
   };
 
-  /* RESET EVERYTHING FOR NEW ROSTER UPLOAD */
   const handleGoBack = () => {
     resetAll();
     setRosterList([]);
@@ -289,7 +278,7 @@ const RandomSelection = () => {
     <>
       {allRosters.length === 0 && (
         <div className="upload-container">
-          <h2>Upload Student Roster</h2>
+          <h2 className="text-xl font-semibold mb-4">Upload Student Roster</h2>
           <RosterUploadButton
             onFileUpload={(content) => {
               const result = parseRosterUpload(content);
@@ -300,57 +289,47 @@ const RandomSelection = () => {
         </div>
       )}
 
-      {/* MAIN CONTENT */}
       {allRosters.length > 0 && (
-        <div className="main-container">
-          {/* CONTROLS SECTION */}
-          <RandomSelectControls
-            numAvailableNames={calculateNumAvailableNames()}
-            spinnerCount={spinnerCount}
-            isRosterDisplayed={isRosterDisplayed}
-            isNumbered={isNumbered}
-            isSorted={isSorted}
-            isSpinning={isSpinning}
-            handleSpinnerCountChange={handleSpinnerCountChange}
-            handleRosterDisplayed={handleRosterDisplayed}
-            handleIsNumbered={handleIsNumbered}
-            handleSort={handleSort}
-            handleSpinning={handleSpinning}
-            handleReset={handleReset}
-            handleGoBack={handleGoBack}
-            handleClearAbsent={handleClearAbsent}
-          />
-          {/* END CONTROLS SECTION */}
+        <div className="flex flex-col sm:flex-row gap-8">
+          <div className="flex-1 order-2 sm:order-1">
+            <RandomSelectControls
+              spinnerCount={spinnerCount}
+              setSpinnerCount={handleSpinnerCountChange}
+              handleSpinning={handleSpinning}
+              isSpinning={isSpinning}
+              handleRosterDisplayed={handleRosterDisplayed}
+              isRosterDisplayed={isRosterDisplayed}
+              isNumbered={isNumbered}
+              handleIsNumbered={handleIsNumbered}
+              isSorted={isSorted}
+              handleSort={handleSort}
+              handleReset={handleReset}
+              handleClearAbsent={handleClearAbsent}
+              handleGoBack={handleGoBack}
+              selectedNames={selectedNames}
+              absentList={absentList}
+              rosterList={rosterList}
+            />
+          </div>
 
-          {/* ROSTER AND NAME SPINNER */}
-          <div className="d-flex justify-content-between">
+          <div className="flex-1 order-1 sm:order-2">
             {isRosterDisplayed && (
-              <div className="me-auto">
-                <Roster
-                  isNumbered={isNumbered}
-                  allRosters={allRosters}
-                  roster={isSorted ? sortedRoster : rosterList}
-                  rosterName={selectedRoster}
-                  selectedNames={selectedNames}
-                  absentList={absentList}
-                  setAbsentList={setAbsentList}
-                  handleRosterChange={handleRosterChange}
-                  handleAddRoster={handleAddRoster}
-                  handleUploadRoster={handleUploadRoster}
-                  handleEditRoster={handleEditRoster}
-                  handleDeleteRoster={handleDeleteRoster}
-                  errorMessage={errorMessage}
-                />
-              </div>
-            )}
-
-            {/* SPIN COMPONENT */}
-            <div className="d-flex mx-auto">
-              <SpinNames
-                spinnerNames={spinnerNames}
-                spinnerCount={spinnerCount}
+              <Roster
+                isNumbered={isNumbered}
+                allRosters={allRosters}
+                roster={isSorted ? sortedRoster : rosterList}
+                rosterName={selectedRoster}
+                selectedNames={selectedNames}
+                absentList={absentList}
+                setAbsentList={setAbsentList}
+                errorMessage={errorMessage}
+                handleRosterChange={handleRosterChange}
+                handleAddRoster={handleAddRoster}
+                handleUploadRoster={handleUploadRoster}
+                handleEditRoster={handleEditRoster}
+                handleDeleteRoster={handleDeleteRoster}
               />
-            </div>
+            )}
           </div>
         </div>
       )}

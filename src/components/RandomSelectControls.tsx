@@ -1,169 +1,76 @@
-import { useEffect, useRef } from "react";
-import "../styles/RandomSelectControls.css";
+import { useState } from "react";
+import { Shuffle, Trash2 } from "lucide-react";
 
 interface Props {
-  numAvailableNames: number;
-  spinnerCount: number;
-  isRosterDisplayed: boolean;
-  isNumbered: boolean;
-  isSorted: boolean;
-  isSpinning: boolean;
-  handleSpinnerCountChange: (count: number) => void;
-  handleRosterDisplayed: () => void;
-  handleIsNumbered: () => void;
-  handleSort: () => void;
-  handleSpinning: () => void;
-  handleReset: () => void;
-  handleClearAbsent: () => void;
-  handleGoBack: () => void;
+  roster: string[];
+  onSelect: (name: string) => void;
+  onClear: () => void;
 }
 
-const RandomSelectControls = ({
-  numAvailableNames,
-  spinnerCount,
-  isRosterDisplayed,
-  isNumbered,
-  isSorted,
-  isSpinning,
-  handleSpinnerCountChange,
-  handleRosterDisplayed,
-  handleIsNumbered,
-  handleSort,
-  handleSpinning,
-  handleReset,
-  handleClearAbsent,
-  handleGoBack,
-}: Props) => {
-  const spinButtonRef = useRef<HTMLButtonElement>(null);
+const RandomSelection = ({ roster, onSelect, onClear }: Props) => {
+  const [selectedName, setSelectedName] = useState<string | null>(null);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [spinnerCount, setSpinnerCount] = useState(0);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const activeElement = document.activeElement;
+  const handleRandomSelect = () => {
+    if (roster.length === 0) return;
 
-      if (activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA" || (activeElement as HTMLElement).isContentEditable)) {
-        return;
-      }
+    setIsSpinning(true);
+    let count = 0;
+    const interval = setInterval(() => {
+      const randomIndex = Math.floor(Math.random() * roster.length);
+      const name = roster[randomIndex];
+      setSelectedName(name);
+      count += 1;
+      setSpinnerCount(count);
+    }, 100);
 
-      const key = event.key.toLowerCase();
-
-      // If key is a digit between 1 and 9
-      if (/^[1-9]$/.test(key)) {
-        const number = parseInt(key, 10);
-        if (number <= numAvailableNames) {
-          handleSpinnerCountChange(number);
-        }
-        return;
-      }
-
-      switch (key) {
-        case "r":
-          handleReset();
-          break;
-        case " ":
-          event.preventDefault();
-          spinButtonRef.current?.click();
-          break;
-        case "c":
-          handleClearAbsent();
-          break;
-        case "s":
-          handleSort();
-          break;
-        case "e":
-          handleIsNumbered();
-          break;
-        default:
-          break;
-      }
-    };
-
-   document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [numAvailableNames]);
+    setTimeout(() => {
+      clearInterval(interval);
+      setIsSpinning(false);
+      const finalIndex = Math.floor(Math.random() * roster.length);
+      const finalName = roster[finalIndex];
+      setSelectedName(finalName);
+      onSelect(finalName); // Call external onSelect function, if any
+      setSpinnerCount(0); // Reset spinner count
+    }, 3000); // Stop after 3 seconds
+  };
 
   return (
-    <div className="random-select-controls" style={{userSelect: "none"}}>
-      {/* GO BACK TO UPLOAD PAGE */}
-      <button className="btn btn-sm btn-danger" onClick={handleGoBack}>
-        Back
-      </button>
+    <div className="flex w-full h-full">
+      {/* Controls on the Left */}
+      <div className="absolute left-0 top-0 flex flex-col gap-2 p-2 bg-white z-10">
+        {/* Shuffle Button */}
+        <button
+          className="p-1 bg-white rounded hover:bg-gray-100 flex justify-center items-center"
+          title="Shuffle"
+          onClick={handleRandomSelect}
+          disabled={isSpinning}
+        >
+          <Shuffle size={24} />
+        </button>
 
-      {/* CLEAR ABSENT NAMES */}
-      <button className="btn btn-sm btn-danger" title="Press C" onClick={handleClearAbsent}>
-        Clear Absent
-      </button>
-
-      {/* Hide Roster */}
-      <div className="p-1 small">
-        <label style={{ color: "white" }}>
-          <input
-            type="checkbox"
-            checked={isRosterDisplayed}
-            onChange={handleRosterDisplayed}
-          />
-          Roster
-        </label>
+        {/* Clear Button */}
+        <button
+          className="p-1 bg-white rounded hover:bg-gray-100 flex justify-center items-center"
+          title="Clear"
+          onClick={onClear}
+        >
+          <Trash2 size={24} />
+        </button>
       </div>
 
-      {/* Number the roster */}
-      <div className="p-1 small">
-        <label style={{ color: "white" }}>
-          <input
-            type="checkbox"
-            title="Press E"
-            checked={isNumbered}
-            onChange={handleIsNumbered}
-          />
-          Enumerate
-        </label>
+      {/* Main Content */}
+      <div className="w-full flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Selected: {selectedName}</h1>
+          <p className="mt-2 text-lg">
+            {isSpinning ? `Spinning... (${spinnerCount})` : ""}
+          </p>
+        </div>
       </div>
-
-      {/* Sort the names */}
-      <div className="p-1 small">
-        <label style={{ color: "white" }}>
-          <input type="checkbox" title="Press S" checked={isSorted} onChange={handleSort} />
-          Sort
-        </label>
-      </div>
-
-      {/* SET NUM OF SPINNERS */}
-      <div className="p-1 small">
-        <label>
-          Select:
-          <select
-            value={spinnerCount}
-            onChange={(e) => handleSpinnerCountChange(Number(e.target.value))}
-          >
-            <option value={0}></option>
-            {Array.from({ length: numAvailableNames }, (_, index) => (
-              <option key={index} value={index + 1}>
-                {index + 1}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      {/* START NAME SELECTION */}
-      <button
-        ref={spinButtonRef}
-        title="Press Space"
-        className="btn btn-sm btn-primary"
-        onClick={handleSpinning}
-        disabled={isSpinning || spinnerCount < 1}
-      >
-        {isSpinning ? "Spinning..." : "Start Spin"}
-      </button>
-
-      {/* RESET SELECTED NAMES */}
-      <button className="btn btn-sm btn-danger" title="Press R" onClick={handleReset}>
-        Reset
-      </button>
     </div>
   );
 };
 
-export default RandomSelectControls;
+export default RandomSelection;
