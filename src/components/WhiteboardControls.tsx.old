@@ -1,0 +1,178 @@
+import React, { useEffect, useState } from "react";
+import { Eraser, Brush, Circle, Grid, Trash2 } from "lucide-react";
+
+interface Props {
+  activeTab: number;
+  handleActiveTabChange: (activeTab: number) => void;
+  setLineWidth: (width: number) => void;
+  setLineColor: (color: string) => void;
+  clearCanvas: () => void;
+  drawGridLines: (show: boolean) => void;
+  toggleEraser: () => void;
+  isErasing: boolean;
+}
+
+const WhiteboardControls = ({
+  activeTab,
+  handleActiveTabChange,
+  setLineWidth,
+  setLineColor,
+  clearCanvas,
+  drawGridLines,
+  toggleEraser,
+  isErasing,
+}: Props) => {
+  const [selectedWidth, setSelectedWidth] = useState<number>(5);
+  const [gridLinesEnabled, setGridLinesEnabled] = useState(false);
+
+  const handleLineWidthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const width = parseInt(e.target.value, 10);
+    setSelectedWidth(width);
+    setLineWidth(width);
+  };
+
+  const handleGridLineToggle = () => {
+    const newValue = !gridLinesEnabled;
+    setGridLinesEnabled(newValue);
+    drawGridLines(newValue);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+
+      switch (key) {
+        case "e":
+          toggleEraser();
+          break;
+        case "q":
+          setLineColor("black");
+          break;
+        case "r":
+          setLineColor("red");
+          break;
+        case "b":
+          setLineColor("blue");
+          break;
+        case "g":
+          setLineColor("green");
+          break;
+        case "1":
+          handleActiveTabChange(1);
+          break;
+        case "2":
+          handleActiveTabChange(2);
+          break;
+        case "3":
+          handleActiveTabChange(3);
+          break;
+        case "c":
+          clearCanvas();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleEraser, setLineColor, handleActiveTabChange, clearCanvas]);
+
+  return (
+    <div className="flex flex-col gap-2">
+      {/* Tab Buttons */}
+      <div className="flex gap-2 justify-center">
+        {[1, 2, 3].map((n) => (
+          <button
+            key={n}
+            title={`Press ${n}`}
+            className={`px-3 py-1 rounded ${
+              activeTab === n ? "bg-gray-300" : "bg-gray-100 hover:bg-gray-200"
+            }`}
+            onClick={() => handleActiveTabChange(n)}
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+
+      {/* Line Width Selector */}
+      <select
+        value={selectedWidth}
+        onChange={handleLineWidthChange}
+        className="p-1 bg-gray-100 rounded hover:bg-gray-200 text-sm"
+        title="Select Line Width"
+      >
+        <option value={2}>Small</option>
+        <option value={5}>Medium</option>
+        <option value={10}>Large</option>
+        <option value={25}>Mega</option>
+      </select>
+
+      {/* Color Buttons */}
+      <div className="flex justify-center gap-1">
+        {[
+          { color: "black", label: "Q" },
+          { color: "red", label: "R" },
+          { color: "green", label: "G" },
+          { color: "blue", label: "B" },
+        ].map(({ color, label }) => (
+          <button
+            key={color}
+            title={`Press ${label}`}
+            onClick={() => setLineColor(color)}
+            className="w-6 h-6 rounded-full border-2 border-gray-300"
+            style={{ backgroundColor: color }}
+          />
+        ))}
+      </div>
+
+      {/* Eraser Button */}
+      <button
+        className={`p-2 rounded flex justify-center items-center ${
+          isErasing ? "bg-gray-300" : "bg-gray-100 hover:bg-gray-200"
+        }`}
+        title="Press E to toggle eraser"
+        onClick={toggleEraser}
+      >
+        <Eraser size={36} />
+      </button>
+
+      {/* Brush Button (for visual only) */}
+      <button
+        className="p-2 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+        title="Brush"
+      >
+        <Brush size={36} />
+      </button>
+
+      {/* Color Picker Icon (for visual only) */}
+      <button
+        className="p-2 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+        title="Color Picker"
+      >
+        <Circle size={36} />
+      </button>
+
+      {/* Grid Toggle */}
+      <button
+        className="p-2 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+        onClick={handleGridLineToggle}
+        title="Toggle Grid"
+      >
+        <Grid size={36} />
+      </button>
+
+      {/* Clear Canvas Button */}
+      <button
+        className="p-2 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+        title="Press C to clear canvas"
+        onClick={clearCanvas}
+      >
+        <Trash2 size={36} />
+      </button>
+    </div>
+  );
+};
+
+export default WhiteboardControls;
