@@ -7,7 +7,7 @@ import {
   listRosterNames,
 } from "../utils/rosterStorage";
 import { parseRosterUpload } from "../utils/parseRosterUpload";
-import { SpinNames } from "./SpinNames";
+import SpinNames from "./SpinNames";
 import Roster from "./Roster";
 import RandomSelectControls from "./RandomSelectControls";
 import RosterUploadButton from "./RosterUploadButton";
@@ -332,6 +332,14 @@ const RandomSelection = () => {
                 handleDeleteRoster={handleDeleteRoster}
               />
             )}
+          </div>
+
+          {/* SpinNames: placed on the right side of the controls and roster */}
+          <div className="flex w-full sm:w-auto sm:ml-4 mt-4 sm:mt-0 sm:order-3">
+            <SpinNames
+              spinnerNames={spinnerNames}
+              spinnerCount={spinnerCount}
+            />
           </div>
         </div>
       )}
