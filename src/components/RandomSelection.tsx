@@ -290,8 +290,9 @@ const RandomSelection = () => {
       )}
 
       {allRosters.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-8">
-          <div className="flex-1 order-2 sm:order-1">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
+          {/* Controls: on top (mobile), left side (desktop) */}
+          <div className="w-full sm:w-[220px] order-1">
             <RandomSelectControls
               spinnerCount={spinnerCount}
               setSpinnerCount={handleSpinnerCountChange}
@@ -312,7 +313,8 @@ const RandomSelection = () => {
             />
           </div>
 
-          <div className="flex-1 order-1 sm:order-2">
+          {/* Roster: below controls on mobile, right side on desktop */}
+          <div className="w-full sm:w-1/2 order-2">
             {isRosterDisplayed && (
               <Roster
                 isNumbered={isNumbered}

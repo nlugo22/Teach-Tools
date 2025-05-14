@@ -1,76 +1,151 @@
 import { useState } from "react";
-import { Shuffle, Trash2 } from "lucide-react";
+import {
+  Users,
+  Shuffle,
+  Eye,
+  EyeOff,
+  Hash,
+  SortAsc,
+  Trash2,
+  Undo2,
+  XCircle,
+  Plus, // Importing Plus icon for spinner count selection
+} from "lucide-react";
 
 interface Props {
-  roster: string[];
-  onSelect: (name: string) => void;
-  onClear: () => void;
+  spinnerCount: number;
+  setSpinnerCount: (count: number) => void;
+  handleSpinning: () => void;
+  isSpinning: boolean;
+  handleRosterDisplayed: () => void;
+  isRosterDisplayed: boolean;
+  isNumbered: boolean;
+  handleIsNumbered: () => void;
+  isSorted: boolean;
+  handleSort: () => void;
+  handleReset: () => void;
+  handleClearAbsent: () => void;
+  handleGoBack: () => void;
+  selectedNames: string[];
+  absentList: string[];
+  rosterList: string[];
 }
 
-const RandomSelection = ({ roster, onSelect, onClear }: Props) => {
-  const [selectedName, setSelectedName] = useState<string | null>(null);
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [spinnerCount, setSpinnerCount] = useState(0);
+const RandomSelectControls = ({
+  spinnerCount,
+  setSpinnerCount,
+  handleSpinning,
+  isSpinning,
+  handleRosterDisplayed,
+  isRosterDisplayed,
+  isNumbered,
+  handleIsNumbered,
+  isSorted,
+  handleSort,
+  handleReset,
+  handleClearAbsent,
+  handleGoBack,
+  selectedNames,
+  absentList,
+  rosterList,
+}: Props) => {
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
-  const handleRandomSelect = () => {
-    if (roster.length === 0) return;
-
-    setIsSpinning(true);
-    let count = 0;
-    const interval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * roster.length);
-      const name = roster[randomIndex];
-      setSelectedName(name);
-      count += 1;
-      setSpinnerCount(count);
-    }, 100);
-
-    setTimeout(() => {
-      clearInterval(interval);
-      setIsSpinning(false);
-      const finalIndex = Math.floor(Math.random() * roster.length);
-      const finalName = roster[finalIndex];
-      setSelectedName(finalName);
-      onSelect(finalName); // Call external onSelect function, if any
-      setSpinnerCount(0); // Reset spinner count
-    }, 3000); // Stop after 3 seconds
+  const handleSelectCount = (count: number) => {
+    setSpinnerCount(count);
+    setIsDropdownVisible(false); // Close dropdown after selection
   };
 
   return (
-    <div className="flex w-full h-full">
-      {/* Controls on the Left */}
-      <div className="absolute left-0 top-0 flex flex-col gap-2 p-2 bg-white z-10">
-        {/* Shuffle Button */}
-        <button
-          className="p-1 bg-white rounded hover:bg-gray-100 flex justify-center items-center"
-          title="Shuffle"
-          onClick={handleRandomSelect}
-          disabled={isSpinning}
-        >
-          <Shuffle size={24} />
-        </button>
+    <div className="flex flex-col gap-3 w-full sm:max-w-xs">
+      {/* Spinner Start Button */}
+      <button
+        onClick={handleSpinning}
+        className="p-2 bg-blue-100 hover:bg-blue-200 rounded flex items-center justify-start gap-x-1"
+      >
+        <Shuffle />
+        {isSpinning ? "Spinning..." : "Spin"}
+      </button>
 
-        {/* Clear Button */}
-        <button
-          className="p-1 bg-white rounded hover:bg-gray-100 flex justify-center items-center"
-          title="Clear"
-          onClick={onClear}
-        >
-          <Trash2 size={24} />
-        </button>
-      </div>
+      {/* Show/Hide Roster */}
+      <button
+        onClick={handleRosterDisplayed}
+        className="p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center justify-start gap-x-1"
+      >
+        {isRosterDisplayed ? <EyeOff /> : <Eye />}
+        {isRosterDisplayed ? "Hide Roster" : "Show Roster"}
+      </button>
 
-      {/* Main Content */}
-      <div className="w-full flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Selected: {selectedName}</h1>
-          <p className="mt-2 text-lg">
-            {isSpinning ? `Spinning... (${spinnerCount})` : ""}
-          </p>
-        </div>
+      {/* Number Toggle */}
+      <button
+        onClick={handleIsNumbered}
+        className="p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center justify-start gap-x-1"
+      >
+        <Hash />
+        {isNumbered ? "Remove Numbers" : "Number Roster"}
+      </button>
+
+      {/* Sort Toggle */}
+      <button
+        onClick={handleSort}
+        className="p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center justify-start gap-x-1"
+      >
+        <SortAsc />
+        {isSorted ? "Unsort" : "Sort A-Z"}
+      </button>
+
+      {/* Reset Selection */}
+      <button
+        onClick={handleReset}
+        className="p-2 bg-yellow-100 hover:bg-yellow-200 rounded flex items-center justify-start gap-x-1"
+      >
+        <Undo2 />
+        Reset Selection
+      </button>
+
+      {/* Clear Absent List */}
+      <button
+        onClick={handleClearAbsent}
+        className="p-2 bg-red-100 hover:bg-red-200 rounded flex items-center justify-start gap-x-1"
+      >
+        <Trash2 />
+        Clear Absent
+      </button>
+
+      {/* Go Back Button */}
+      <button
+        onClick={handleGoBack}
+        className="p-2 bg-gray-300 hover:bg-gray-400 rounded flex items-center justify-start gap-x-1"
+      >
+        <XCircle />
+        Back
+      </button>
+
+      {/* Spinner Count Selection (Button with Dropdown) */}
+      <div className="relative">
+        <button
+          onClick={() => setIsDropdownVisible((prev) => !prev)}
+          className="p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center justify-start gap-x-1 w-full"
+        >
+          <Plus className="mr-2" />
+          Spinner Count: {spinnerCount}
+        </button>
+        {isDropdownVisible && (
+          <div className="absolute bg-white border rounded shadow-md mt-1 w-full z-10">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((count) => (
+              <button
+                key={count}
+                onClick={() => handleSelectCount(count)}
+                className="w-full p-2 text-left hover:bg-gray-200"
+              >
+                {count}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default RandomSelection;
+export default RandomSelectControls;
