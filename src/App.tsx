@@ -2,6 +2,8 @@ import "./App.css";
 import { useEffect, useState } from "react";
 import Whiteboard from "./components/Whiteboard";
 import RandomSelection from "./components/RandomSelection";
+import Keybinds from "./components/Keybinds";
+import { HelpCircle } from "lucide-react";
 
 enum Modules {
   WHITEBOARD = "Whiteboard",
@@ -11,10 +13,14 @@ enum Modules {
 const modules = Object.values(Modules);
 
 function App() {
+  const [isKeyBindsDisplayed, setIsKeybindsDisplayed] = useState<boolean>(false);
   const [activeModule, setActiveModule] = useState<string>(() => {
     const saved = localStorage.getItem("activeModule");
     return saved ?? Modules.WHITEBOARD;
   });
+
+  const displayKeybinds = () => setIsKeybindsDisplayed(true);;
+  const hideKeybinds = () => setIsKeybindsDisplayed(false);
 
   // Handle tab key to cycle through modules
   useEffect(() => {
@@ -52,7 +58,7 @@ function App() {
       </header>
 
       {/* Module Selector */}
-      <div className="flex justify-center gap-6 text-lg py-2 bg-gray-100 border-b border-gray-300">
+      <div className="relative w-full flex justify-center gap-6 text-lg py-2 bg-gray-100 border-b border-gray-300">
         {modules.map((label) => (
           <button
             key={label}
@@ -66,9 +72,15 @@ function App() {
             {label}
           </button>
         ))}
+        <button
+          className="cursor-pointer absolute right-4 text-gray-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onClick={() => displayKeybinds()}  // Replace with your function
+        >
+          <HelpCircle className="w-8 h-8" />
+        </button>
       </div>
 
-      {/* Main Layout */}
+      {isKeyBindsDisplayed && <Keybinds onClose={hideKeybinds} />}
 
       {/* Main Module Content */}
       <main className="">
