@@ -275,9 +275,10 @@ const RandomSelection = () => {
   };
 
   return (
-    <>
+    <div className="flex h-screen">
       {allRosters.length === 0 && (
-        <div className="upload-container">
+        <div className="flex justify-center items-center flex-grow">
+          <div className="bg-white shadow-md rounded-md p-6 max-w-sm w-full space-y-4">
           <h2 className="text-xl font-semibold mb-4">Upload Student Roster</h2>
           <RosterUploadButton
             onFileUpload={(content) => {
@@ -286,6 +287,7 @@ const RandomSelection = () => {
               handleUploadRoster(result.rosterName, result.names);
             }}
           />
+          </div>
         </div>
       )}
 
@@ -340,7 +342,7 @@ const RandomSelection = () => {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 };
 

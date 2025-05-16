@@ -56,9 +56,9 @@ const Roster = ({
   };
 
   return (
-    <div className="relative w-[15vw] text-center border shadow">
+    <div className="relative w-[15vw] text-center shadow">
       {/* Header Dropdown */}
-      <div className="text-center top-0 bg-gray-800 text-2xl text-white">
+      <div className="text-center top-0 bg-blue-600 text-2xl text-white rounded">
         <button
           className="w-full text-white flex items-center justify-center gap-1 focus:outline-none"
           onClick={() => setShowMenu((prev) => !prev)}
@@ -167,7 +167,7 @@ const Roster = ({
       {/* Roster Table */}
       <div className="h-[84vh] flex flex-col">
         <table className="min-w-full table-auto border border-gray-300 select-none">
-          <thead className="bg-gray-800 text-white">
+          <thead className="bg-blue-500 text-white rounded">
             <tr>
               {isNumbered && <th className="border-r px-2">#</th>}
               <th className="px-4 py-2 text-center">Name</th>
@@ -178,7 +178,7 @@ const Roster = ({
           <table className="min-w-full table-auto">
             <tbody>
               {roster.map((name, index) => (
-                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-200" : "bg-white"} hover:bg-gray-200`}>
+                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-00" : "bg-white"} hover:bg-gray-200`}>
                   {isNumbered && (
                     <td className="border-r px-5 py-2">{index + 1}</td>
                   )}
@@ -186,9 +186,9 @@ const Roster = ({
                     onClick={() => handleMarkAbsent(name)}
                     className={`px-4 py-2 cursor-pointer ${
                       absentList.includes(name)
-                        ? "bg-red-600 text-white"
+                        ? "bg-red-400 text-white"
                         : selectedNames.includes(name)
-                          ? "bg-gray-500 text-white"
+                          ? "bg-gray-400 text-white"
                           : ""
                     }`}
                   >

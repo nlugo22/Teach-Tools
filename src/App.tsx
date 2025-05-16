@@ -71,7 +71,7 @@ function App() {
       {/* Main Layout */}
 
       {/* Main Module Content */}
-      <main className="flex flex-1 h-full">
+      <main className="">
         {activeModule === "Whiteboard" && <Whiteboard />}
         {activeModule === "Random Select" && <RandomSelection />}
       </main>

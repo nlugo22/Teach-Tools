@@ -36,16 +36,16 @@ const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
     };
 
     return (
-      <div className="card">
+      <div className="bg-white shadow-md rounded-md p-4 w-full max-w-sm mx-auto space-y-4">
         <input
           type="file"
           accept=".txt"
-          className="form-control form-control-sm"
+          className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
           onChange={handleFileChange}
           ref={ref}
         />
         <button
-          className="btn btn-sm btn-primary text-white"
+          className="w-full py-2 px-4 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleFileUpload}
           disabled={!file}
         >
