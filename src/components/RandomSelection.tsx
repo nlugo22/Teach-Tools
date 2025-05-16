@@ -290,17 +290,17 @@ const RandomSelection = () => {
       )}
 
       {allRosters.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
-          {/* Controls: on top (mobile), left side (desktop) */}
-          <div className="w-full sm:w-[220px] order-1">
+        <>
+          <div className="p-2">
             <RandomSelectControls
               spinnerCount={spinnerCount}
-              setSpinnerCount={handleSpinnerCountChange}
+              handleSpinnerCountChange={handleSpinnerCountChange}
               handleSpinning={handleSpinning}
               isSpinning={isSpinning}
               handleRosterDisplayed={handleRosterDisplayed}
               isRosterDisplayed={isRosterDisplayed}
               isNumbered={isNumbered}
+              numAvailableNames={calculateNumAvailableNames()}
               handleIsNumbered={handleIsNumbered}
               isSorted={isSorted}
               handleSort={handleSort}
@@ -308,14 +308,11 @@ const RandomSelection = () => {
               handleClearAbsent={handleClearAbsent}
               handleGoBack={handleGoBack}
               selectedNames={selectedNames}
-              absentList={absentList}
-              rosterList={rosterList}
             />
           </div>
 
-          {/* Roster: below controls on mobile, right side on desktop */}
-          <div className="w-full sm:w-1/2 order-2">
-            {isRosterDisplayed && (
+          {isRosterDisplayed && (
+            <div className="">
               <Roster
                 isNumbered={isNumbered}
                 allRosters={allRosters}
@@ -331,17 +328,17 @@ const RandomSelection = () => {
                 handleEditRoster={handleEditRoster}
                 handleDeleteRoster={handleDeleteRoster}
               />
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* SpinNames: placed on the right side of the controls and roster */}
-          <div className="flex w-full sm:w-auto sm:ml-4 mt-4 sm:mt-0 sm:order-3">
+          {/* SpinNames */}
+          <div className="m-auto">
             <SpinNames
               spinnerNames={spinnerNames}
               spinnerCount={spinnerCount}
             />
           </div>
-        </div>
+        </>
       )}
     </>
   );

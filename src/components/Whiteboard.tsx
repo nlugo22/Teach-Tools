@@ -2,23 +2,24 @@ import React, { useEffect, useRef, useState } from "react";
 import WhiteboardControls from "./WhiteboardControls";
 
 type Point = { x: number; y: number };
-type Line  = { points: Point[]; color: string; width: number };
+type Line = { points: Point[]; color: string; width: number };
 type DrawingEvent = React.MouseEvent | React.TouchEvent;
 
 const Whiteboard = () => {
   /* ──────────────────────────── state / refs ─────────────────────────── */
-  const [activeTab, setActiveTab]   = useState<number>(1);
-  const [isDrawing, setIsDrawing]   = useState(false);
-  const [isErasing, setIsErasing]   = useState(false);
-  const [lineWidth, setLineWidth]   = useState<number>(5);
+  const [activeTab, setActiveTab] = useState<number>(1);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [isErasing, setIsErasing] = useState(false);
+  const [lineWidth, setLineWidth] = useState<number>(5);
   const [currentColor, setCurrentColor] = useState<string>("black");
   const [lines, setLines] = useState<Line[]>([]);
+  const [showGrid, setShowGrid] = useState(false);
 
-  const canvasRef      = useRef<HTMLCanvasElement>(null);
-  const gridCanvasRef  = useRef<HTMLCanvasElement>(null);
-  const ctxRef         = useRef<CanvasRenderingContext2D | null>(null);
-  const gridCtxRef     = useRef<CanvasRenderingContext2D | null>(null);
-  const lastPosRef     = useRef<Point | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const gridCanvasRef = useRef<HTMLCanvasElement>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const gridCtxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const lastPosRef = useRef<Point | null>(null);
 
   /* ───────────────────────────── canvas setup ────────────────────────── */
   useEffect(() => {
@@ -27,18 +28,18 @@ const Whiteboard = () => {
 
     if (canvas && gridCanvas) {
       // Match viewport size (you can replace with parent width/height logic if you prefer)
-      canvas.width  = window.innerWidth;
+      canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      gridCanvas.width  = window.innerWidth;
+      gridCanvas.width = window.innerWidth;
       gridCanvas.height = window.innerHeight;
 
-      ctxRef.current      = canvas.getContext("2d");
-      gridCtxRef.current  = gridCanvas.getContext("2d");
+      ctxRef.current = canvas.getContext("2d");
+      gridCtxRef.current = gridCanvas.getContext("2d");
 
       if (ctxRef.current) {
-        ctxRef.current.lineCap     = "round";
-        ctxRef.current.lineJoin    = "round";
-        ctxRef.current.lineWidth   = lineWidth;
+        ctxRef.current.lineCap = "round";
+        ctxRef.current.lineJoin = "round";
+        ctxRef.current.lineWidth = lineWidth;
         ctxRef.current.strokeStyle = currentColor;
       }
     }
@@ -48,7 +49,7 @@ const Whiteboard = () => {
   useEffect(() => {
     if (ctxRef.current) {
       ctxRef.current.strokeStyle = currentColor;
-      ctxRef.current.lineWidth   = lineWidth;
+      ctxRef.current.lineWidth = lineWidth;
     }
   }, [lineWidth, currentColor]);
 
@@ -70,6 +71,11 @@ const Whiteboard = () => {
   }, [activeTab]);
 
   /* ────────────────────────── grid helper ────────────────────────────── */
+  const toggleGrid = () => setShowGrid((prev) => !prev);
+  useEffect(() => {
+    drawGridLines(showGrid);
+  }, [showGrid])
+
   const drawGridLines = (show: boolean) => {
     const gridCtx = gridCtxRef.current;
     const gridCanvas = gridCanvasRef.current;
@@ -121,7 +127,10 @@ const Whiteboard = () => {
         ctx.lineTo(pos.x + 1, pos.y + 1);
         ctx.stroke();
       }
-      setLines((prev) => [...prev, { points: [pos], color: currentColor, width: lineWidth }]);
+      setLines((prev) => [
+        ...prev,
+        { points: [pos], color: currentColor, width: lineWidth },
+      ]);
     }
   };
 
@@ -129,7 +138,10 @@ const Whiteboard = () => {
     setIsDrawing(false);
     lastPosRef.current = null;
     setLines((prev) => {
-      localStorage.setItem(`whiteboardDrawing-${activeTab}`, JSON.stringify(prev));
+      localStorage.setItem(
+        `whiteboardDrawing-${activeTab}`,
+        JSON.stringify(prev),
+      );
       return prev;
     });
   };
@@ -166,8 +178,11 @@ const Whiteboard = () => {
     if (!ctx) return;
     const eraserSize = lineWidth * 2;
 
-    const remaining = lines.filter((line) =>
-      !line.points.some((p) => Math.hypot(p.x - pos.x, p.y - pos.y) <= eraserSize)
+    const remaining = lines.filter(
+      (line) =>
+        !line.points.some(
+          (p) => Math.hypot(p.x - pos.x, p.y - pos.y) <= eraserSize,
+        ),
     );
 
     setLines(remaining);
@@ -180,35 +195,45 @@ const Whiteboard = () => {
       ctx.strokeStyle = line.color;
       ctx.lineWidth = line.width;
       ctx.beginPath();
-      line.points.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+      line.points.forEach((p, i) =>
+        i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
+      );
       ctx.stroke();
     });
   };
 
   /* ─────────────────────────── helpers for controls ──────────────────── */
   const handleLineWidthChange = (w: number) => setLineWidth(w);
-  const handleLineColor      = (c: string) => { setCurrentColor(c); setIsErasing(false); };
-  const clearCanvas          = () => {
-    ctxRef.current?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
+  const handleLineColor = (c: string) => {
+    setCurrentColor(c);
+    setIsErasing(false);
+  };
+  const clearCanvas = () => {
+    ctxRef.current?.clearRect(
+      0,
+      0,
+      canvasRef.current!.width,
+      canvasRef.current!.height,
+    );
     localStorage.removeItem(`whiteboardDrawing-${activeTab}`);
     setLines([]);
   };
-  const toggleEraser         = () => setIsErasing((prev) => !prev);
-  const handleActiveTabChange= (tab: number) => setActiveTab(tab);
+  const toggleEraser = () => setIsErasing((prev) => !prev);
+  const handleActiveTabChange = (tab: number) => setActiveTab(tab);
 
   /* ────────────────────────────── render ─────────────────────────────── */
   return (
     <div className="flex h-full w-full">
-      {/* ─── Left-hand controls ─────────────────────────────────────────── */}
-      <aside className="w-24 bg-white shadow-md border border-gray-200 rounded-md p-2">
+      {/* ───   Controls     ────────────────────────────────────────────────────── */}
+      <aside className="bg-white shadow-md border border-gray-200 rounded-md p-2">
         <WhiteboardControls
           activeTab={activeTab}
           handleActiveTabChange={handleActiveTabChange}
           setLineWidth={handleLineWidthChange}
           setLineColor={handleLineColor}
           clearCanvas={clearCanvas}
-          drawGridLines={drawGridLines}
           toggleEraser={toggleEraser}
+          toggleGrid={toggleGrid}
           isErasing={isErasing}
         />
       </aside>
