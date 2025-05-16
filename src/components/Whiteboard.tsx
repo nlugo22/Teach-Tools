@@ -223,9 +223,9 @@ const Whiteboard = () => {
 
   /* ────────────────────────────── render ─────────────────────────────── */
   return (
-    <div className="flex h-full w-full">
+    <div className="relative h-full w-full">
       {/* ───   Controls     ────────────────────────────────────────────────────── */}
-      <aside className="bg-white shadow-md border border-gray-200 rounded-md p-2">
+      <div className="absolute top-4 left-4 z-10 bg-white shadow-md border border-gray-200 rounded-md p-2 pointer-events-auto">
         <WhiteboardControls
           activeTab={activeTab}
           handleActiveTabChange={handleActiveTabChange}
@@ -236,20 +236,19 @@ const Whiteboard = () => {
           toggleGrid={toggleGrid}
           isErasing={isErasing}
         />
-      </aside>
+      </div>
 
       {/* ─── Drawing area ───────────────────────────────────────────────── */}
-      <div className="flex-1 relative rounded-md overflow-hidden">
         {/* Grid canvas (below, no pointer events) */}
         <canvas
           ref={gridCanvasRef}
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 z-0 pointer-events-none"
         />
 
         {/* Main drawing canvas */}
         <canvas
           ref={canvasRef}
-          className="absolute inset-0"
+          className="absolute inset-0 z-0"
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
@@ -261,7 +260,6 @@ const Whiteboard = () => {
           style={{ touchAction: "none" }}
         />
       </div>
-    </div>
   );
 };
 

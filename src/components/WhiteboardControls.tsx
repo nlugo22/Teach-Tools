@@ -154,7 +154,7 @@ const WhiteboardControls = ({
 
       {/* Color Picker Dropdown (pop-out) */}
       {isColorPickerVisible && (
-        <div className="absolute bg-white p-2 rounded shadow-lg mt-2 flex flex-col gap-1">
+        <div className="bg-white p-2 rounded shadow-lg mt-2 flex flex-col gap-1">
           <button
             className="p-2 w-12 bg-black text-white rounded"
             onClick={() => handleColorChange("black")}
