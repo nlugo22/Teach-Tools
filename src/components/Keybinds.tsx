@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 
 interface Props {
     onClose: () => void;
@@ -6,15 +7,18 @@ interface Props {
 const Keybinds = ({onClose}: Props) => {
   return (
       <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-w-full text-center">
-            <button 
-                onClick={onClose} 
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-                Close
-            </button>
-          </div> 
+          <div className="relative w-65 h-65 bg-white rounded p-4">
+              <button
+                  onClick={onClose}
+                  className="absolute top-2 right-2"
+              >
+                  <X className="w-6 h-6 text-black" />
+              </button>
+
+              {/* Your keybind list or other content goes here */}
+          </div>
       </div>
+
   )
 }
 
