@@ -106,67 +106,76 @@ const RandomSelectControls = ({
 
   return (
     <div className="flex flex-col gap-3 w-[15vw] sm:max-w-xs">
+
+      { /* Select names */ }
       <button
         ref={spinButtonRef}
         onClick={handleSpinning}
-        className="p-2 bg-blue-100 hover:bg-blue-200 rounded flex items-center gap-x-1"
+        className="cursor-pointer p-2 bg-blue-100 hover:bg-blue-200 rounded flex items-center gap-x-1"
       >
         <Shuffle />
         {isSpinning ? "Spinning..." : "Spin"}
       </button>
 
+      { /* Show hide roster */ }
       <button
         onClick={handleRosterDisplayed}
-        className="p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1"
+        className="cursor-pointer p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1"
       >
         {isRosterDisplayed ? <EyeOff /> : <Eye />}
         {isRosterDisplayed ? "Hide Roster" : "Show Roster"}
       </button>
 
+      { /* Enumerate */ }
       <button
         onClick={handleIsNumbered}
-        className="p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1"
+        className="cursor-pointer p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1"
       >
         <Hash />
         {isNumbered ? "Remove Numbers" : "Number Roster"}
       </button>
 
+      { /* Sort button */ }
       <button
         onClick={handleSort}
-        className="p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1"
+        className="cursor-pointer p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1"
       >
         <SortAsc />
         {isSorted ? "Unsort" : "Sort A-Z"}
       </button>
 
+      { /* Reset selected button */ }
       <button
         onClick={handleReset}
-        className="p-2 bg-yellow-100 hover:bg-yellow-200 rounded flex items-center gap-x-1"
+        className="cursor-pointer p-2 bg-yellow-100 hover:bg-yellow-200 rounded flex items-center gap-x-1"
       >
         <Undo2 />
         Reset Selection
       </button>
 
+      { /* Clear absent button */ }
       <button
         onClick={handleClearAbsent}
-        className="p-2 bg-red-100 hover:bg-red-200 rounded flex items-center gap-x-1"
+        className="cursor-pointer p-2 bg-red-100 hover:bg-red-200 rounded flex items-center gap-x-1"
       >
         <Trash2 />
         Clear Absent
       </button>
 
+      { /* Shape button */}
       <button
         onClick={handleGoBack}
-        className="p-2 bg-gray-300 hover:bg-gray-400 rounded flex items-center gap-x-1"
+        className="cursor-pointer p-2 bg-gray-300 hover:bg-gray-400 rounded flex items-center gap-x-1"
       >
         <XCircle />
         Back
       </button>
 
+      { /* Spinner count change */ }
       <div className="relative">
         <button
           onClick={() => setIsDropdownVisible((prev) => !prev)}
-          className="p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1 w-full"
+          className="cursor-pointer p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1 w-full"
         >
           <Plus className="mr-2" />
           Spinner Count: {spinnerCount}

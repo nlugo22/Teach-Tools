@@ -58,9 +58,9 @@ const Roster = ({
   return (
     <div className="relative w-[15vw] text-center shadow">
       {/* Header Dropdown */}
-      <div className="text-center top-0 bg-blue-600 text-2xl text-white rounded">
+      <div className="text-center top-0 bg-blue-600 text-2xl text-white rounded ">
         <button
-          className="w-full text-white flex items-center justify-center gap-1 focus:outline-none"
+          className="w-full text-white flex items-center cursor-pointer justify-center gap-1 focus:outline-none"
           onClick={() => setShowMenu((prev) => !prev)}
         >
           <span className="truncate">{rosterName}</span>▼

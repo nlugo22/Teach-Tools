@@ -17,7 +17,7 @@ const SpinNames = ({ spinnerNames, spinnerCount }: Props) => {
             style={{ flex: "0 0 auto", width: "auto"}}
             >
             <div
-            className="w-[200px] h-[100px] flex items-center justify-center border-2 border-gray-400 bg-gray-200 text-lg font-bold m-2"
+            className="w-[200px] h-[100px] flex items-center justify-center border-2 border-gray-400 bg-blue-200 text-2xl font-bold m-2"
           >
             {spinnerNames[index] || index + 1}
             </div>
