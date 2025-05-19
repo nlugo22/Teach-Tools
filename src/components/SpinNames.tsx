@@ -5,25 +5,20 @@ interface Props {
 
 const SpinNames = ({ spinnerNames, spinnerCount }: Props) => {
   return (
-    <div
-      className="h-full flex flex-col"
-    >
-      <div className="flex flex-wrap justify-center max-h-[90vh] overflow-y-auto pb-12"
-      >
-      {spinnerCount > 0 &&
-        Array.from({ length: spinnerCount }).map((_, index) => (
-          <div
-            key={index}
-            style={{ flex: "0 0 auto", width: "auto"}}
-            >
-            <div
-            className="w-[200px] h-[100px] flex items-center justify-center border-2 border-gray-400 bg-blue-200 text-2xl font-bold m-2"
-          >
-            {spinnerNames[index] || index + 1}
+    <div className="h-full flex flex-col">
+      <div className="flex flex-wrap justify-center max-h-[90vh] overflow-y-auto pb-12">
+        {spinnerCount > 0 &&
+          Array.from({ length: spinnerCount }).map((_, index) => (
+            <div key={index} style={{ flex: "0 0 auto", width: "auto" }}>
+              <div
+                className="w-[200px] h-[100px] flex items-center justify-center border-2 border-gray-400 bg-blue-200 text-2xl font-bold m-2 text-ellipsis overflow-hidden whitespace-nowrap"
+                title={spinnerNames[index]}
+              >
+                {spinnerNames[index] || index + 1}
+              </div>
             </div>
-          </div>
-        ))}
-        </div>
+          ))}
+      </div>
     </div>
   );
 };
