@@ -1,9 +1,10 @@
 import "./App.css";
-import { useEffect, useState } from "react";
+import { act, useEffect, useState } from "react";
 import Whiteboard from "./components/Whiteboard";
 import RandomSelection from "./components/RandomSelection";
 import Keybinds from "./components/Keybinds";
 import { HelpCircle } from "lucide-react";
+import Navbar from "./components/Navbar";
 
 enum Modules {
   WHITEBOARD = "Whiteboard",
@@ -33,6 +34,10 @@ function App() {
           return modules[next];
         });
       }
+
+      if (e.key === "?") {
+        displayKeybinds();
+      }
     };
     window.addEventListener("keydown", handleKeydown);
     return () => window.removeEventListener("keydown", handleKeydown);
@@ -46,16 +51,7 @@ function App() {
   return (
     <div className="h-screen bg-gray-100 overflow-hidden">
       {/* Top Navbar */}
-      <header className="bg-gray-800 text-white text-sm">
-        <nav className="px-4 py-2 flex gap-6">
-          <button onClick={() => {}} className="hover:text-blue-300">
-            Home
-          </button>
-          <button onClick={() => {}} className="hover:text-blue-300">
-            About
-          </button>
-        </nav>
-      </header>
+      <Navbar />
 
       {/* Module Selector */}
       <div className="relative w-full flex justify-center gap-6 text-lg py-2 bg-gray-100 border-b border-gray-300">
@@ -80,7 +76,7 @@ function App() {
         </button>
       </div>
 
-      {isKeyBindsDisplayed && <Keybinds onClose={hideKeybinds} />}
+      {isKeyBindsDisplayed && <Keybinds activeModule={activeModule} onClose={hideKeybinds} />}
 
       {/* Main Module Content */}
       <main className="">

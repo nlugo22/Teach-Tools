@@ -74,7 +74,7 @@ const Whiteboard = () => {
   const toggleGrid = () => setShowGrid((prev) => !prev);
   useEffect(() => {
     drawGridLines(showGrid);
-  }, [showGrid])
+  }, [showGrid]);
 
   const drawGridLines = (show: boolean) => {
     const gridCtx = gridCtxRef.current;
@@ -123,6 +123,8 @@ const Whiteboard = () => {
       const ctx = ctxRef.current;
       if (ctx) {
         ctx.beginPath();
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = lineWidth;
         ctx.moveTo(pos.x, pos.y);
         ctx.lineTo(pos.x + 1, pos.y + 1);
         ctx.stroke();
@@ -157,14 +159,19 @@ const Whiteboard = () => {
       const last = lastPosRef.current;
       if (!ctx || !last) return;
 
-      ctx.beginPath();
-      ctx.moveTo(last.x, last.y);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.stroke();
-
       setLines((prev) => {
         const newLines = [...prev];
-        newLines[newLines.length - 1]?.points.push(pos);
+        const lastLine = newLines[newLines.length - 1];
+        if (!lastLine) return prev;
+
+        ctx.strokeStyle = lastLine.color;
+        ctx.lineWidth = lastLine.width;
+        ctx.beginPath();
+        ctx.moveTo(last.x, last.y);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+
+        lastLine.points.push(pos);
         return newLines;
       });
 
@@ -239,27 +246,27 @@ const Whiteboard = () => {
       </div>
 
       {/* ─── Drawing area ───────────────────────────────────────────────── */}
-        {/* Grid canvas (below, no pointer events) */}
-        <canvas
-          ref={gridCanvasRef}
-          className="absolute inset-0 z-0 pointer-events-none"
-        />
+      {/* Grid canvas (below, no pointer events) */}
+      <canvas
+        ref={gridCanvasRef}
+        className="absolute inset-0 z-0 pointer-events-none"
+      />
 
-        {/* Main drawing canvas */}
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 z-0"
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
-          onTouchStart={startDrawing}
-          onTouchMove={draw}
-          onTouchEnd={stopDrawing}
-          onTouchCancel={stopDrawing}
-          style={{ touchAction: "none" }}
-        />
-      </div>
+      {/* Main drawing canvas */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 z-0"
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
+        onTouchStart={startDrawing}
+        onTouchMove={draw}
+        onTouchEnd={stopDrawing}
+        onTouchCancel={stopDrawing}
+        style={{ touchAction: "none" }}
+      />
+    </div>
   );
 };
 

@@ -166,25 +166,25 @@ const Roster = ({
 
       {/* Roster Table */}
       <div className="h-[84vh] flex flex-col">
-        <table className="min-w-full table-auto border border-gray-300 select-none">
+        <table className="table-auto border border-gray-300 select-none">
           <thead className="bg-blue-500 text-white rounded">
             <tr>
-              {isNumbered && <th className="border-r px-2">#</th>}
+              {isNumbered && <th className="border-r text-center px-2 w-10">#</th>}
               <th className="px-4 py-2 text-center">Name</th>
             </tr>
           </thead>
         </table>
         <div className="overflow-auto">
-          <table className="min-w-full table-auto">
+          <table className="w-full table-auto">
             <tbody>
               {roster.map((name, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? "bg-gray-00" : "bg-white"} hover:bg-gray-200`}>
                   {isNumbered && (
-                    <td className="border-r px-5 py-2">{index + 1}</td>
+                    <td className="border-r px-2 text-center w-10">{index + 1}</td>
                   )}
                   <td
                     onClick={() => handleMarkAbsent(name)}
-                    className={`px-4 py-2 cursor-pointer ${
+                    className={`px-4 py-2 text-center cursor-pointer ${
                       absentList.includes(name)
                         ? "bg-red-400 text-white"
                         : selectedNames.includes(name)
