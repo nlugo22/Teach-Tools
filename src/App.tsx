@@ -1,5 +1,5 @@
 import "./App.css";
-import { act, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Whiteboard from "./components/Whiteboard";
 import RandomSelection from "./components/RandomSelection";
 import Keybinds from "./components/Keybinds";
