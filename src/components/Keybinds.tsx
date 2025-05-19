@@ -19,6 +19,7 @@ const Keybinds = ({ onClose, activeModule }: Props) => {
     },
     "Random Select": {
       Space: "Start selection.",
+      h: "Hide the roster.",
       e: "Number the roster.",
       s: "Sort the roster.",
       r: "Reset the selected names.",

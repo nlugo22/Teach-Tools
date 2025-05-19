@@ -54,7 +54,7 @@ function App() {
       <Navbar />
 
       {/* Module Selector */}
-      <div className="relative w-full flex justify-center gap-6 text-lg py-2 bg-gray-100 border-b border-gray-300">
+      <div className="relative w-full flex justify-center gap-6 text-xl py-2 bg-gray-100 border-b border-gray-300">
         {modules.map((label) => (
           <button
             key={label}

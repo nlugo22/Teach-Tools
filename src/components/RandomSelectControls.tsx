@@ -75,6 +75,9 @@ const RandomSelectControls = ({
           event.preventDefault();
           spinButtonRef.current?.click();
           break;
+        case "h":
+          handleRosterDisplayed(); 
+          break;
         case "r":
           handleReset();
           break;
@@ -106,8 +109,7 @@ const RandomSelectControls = ({
 
   return (
     <div className="flex flex-col gap-3 w-[15vw] sm:max-w-xs">
-
-      { /* Select names */ }
+      {/* Select names */}
       <button
         ref={spinButtonRef}
         onClick={handleSpinning}
@@ -117,7 +119,7 @@ const RandomSelectControls = ({
         {isSpinning ? "Spinning..." : "Spin"}
       </button>
 
-      { /* Show hide roster */ }
+      {/* Show hide roster */}
       <button
         onClick={handleRosterDisplayed}
         className="cursor-pointer p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1"
@@ -126,7 +128,7 @@ const RandomSelectControls = ({
         {isRosterDisplayed ? "Hide Roster" : "Show Roster"}
       </button>
 
-      { /* Enumerate */ }
+      {/* Enumerate */}
       <button
         onClick={handleIsNumbered}
         className="cursor-pointer p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1"
@@ -135,7 +137,7 @@ const RandomSelectControls = ({
         {isNumbered ? "Remove Numbers" : "Number Roster"}
       </button>
 
-      { /* Sort button */ }
+      {/* Sort button */}
       <button
         onClick={handleSort}
         className="cursor-pointer p-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-x-1"
@@ -144,7 +146,7 @@ const RandomSelectControls = ({
         {isSorted ? "Unsort" : "Sort A-Z"}
       </button>
 
-      { /* Reset selected button */ }
+      {/* Reset selected button */}
       <button
         onClick={handleReset}
         className="cursor-pointer p-2 bg-yellow-100 hover:bg-yellow-200 rounded flex items-center gap-x-1"
@@ -153,7 +155,7 @@ const RandomSelectControls = ({
         Reset Selection
       </button>
 
-      { /* Clear absent button */ }
+      {/* Clear absent button */}
       <button
         onClick={handleClearAbsent}
         className="cursor-pointer p-2 bg-red-100 hover:bg-red-200 rounded flex items-center gap-x-1"
@@ -162,7 +164,7 @@ const RandomSelectControls = ({
         Clear Absent
       </button>
 
-      { /* Shape button */}
+      {/* Shape button */}
       <button
         onClick={handleGoBack}
         className="cursor-pointer p-2 bg-gray-300 hover:bg-gray-400 rounded flex items-center gap-x-1"
@@ -171,7 +173,7 @@ const RandomSelectControls = ({
         Back
       </button>
 
-      { /* Spinner count change */ }
+      {/* Spinner count change */}
       <div className="relative">
         <button
           onClick={() => setIsDropdownVisible((prev) => !prev)}
@@ -182,7 +184,7 @@ const RandomSelectControls = ({
         </button>
         {isDropdownVisible && (
           <div className="absolute overflow-y-auto max-h-64 bg-white border rounded shadow-md mt-1 w-full z-10">
-            {Array.from({ length: numAvailableNames}).map((_, i) => (
+            {Array.from({ length: numAvailableNames }).map((_, i) => (
               <button
                 key={i + 1}
                 onClick={() => handleSelectCount(i + 1)}

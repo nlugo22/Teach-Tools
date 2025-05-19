@@ -9,7 +9,7 @@ const Navbar = () => {
           alt="Home"
           title="Home"
           onClick={() => {}}
-          className="hover:brightness-75 w-9 h-9"
+          className="hover:brightness-75 w-8 h-8"
         />
         <button onClick={() => {}} className="hover:text-blue-300">
           About
