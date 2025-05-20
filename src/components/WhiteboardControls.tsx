@@ -97,7 +97,7 @@ const WhiteboardControls = ({
         {[1, 2, 3].map((num) => (
           <button
             key={num}
-            className={`py-2 w-12 font-bold  ${
+            className={`cursor-pointer py-2 w-12 font-bold  ${
               activeTab === num ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
             onClick={() => handleActiveTabChange(num)}
@@ -109,7 +109,7 @@ const WhiteboardControls = ({
 
       {/* Eraser Button */}
       <button
-        className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+        className="p-2 w-12 bg-gray-100 cursor-pointer rounded hover:bg-gray-200 flex justify-center items-center"
         title="Eraser"
         onClick={toggleEraser}
       >
@@ -120,7 +120,7 @@ const WhiteboardControls = ({
       <div className="relative">
         <button
           onClick={() => setShowLineWidthPicker(!showLineWidthPicker)}
-          className="p-2 bg-gray-100 rounded hover:bg-gray-200"
+          className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
           title="Line Width"
         >
           <SlidersHorizontal size={36} />
@@ -145,7 +145,7 @@ const WhiteboardControls = ({
 
       {/* Brush Button */}
       <button
-        className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+        className="p-2 w-12 cursor-pointer bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
         title="Brush"
         onClick={() => setColorPickerVisible(!isColorPickerVisible)}
       >
@@ -156,25 +156,25 @@ const WhiteboardControls = ({
       {isColorPickerVisible && (
         <div className="bg-white p-2 rounded shadow-lg mt-2 flex flex-col text-xs">
           <button
-            className="p-2 w-12 bg-black text-white rounded"
+            className="p-2 w-12 bg-black text-white cursor-pointer rounded"
             onClick={() => handleColorChange("black")}
           >
             Black
           </button>
           <button
-            className="p-2 w-12 bg-red-500 text-white rounded"
+            className="p-2 w-12 bg-red-500 text-white rounded cursor-pointer"
             onClick={() => handleColorChange("red")}
           >
             Red
           </button>
           <button
-            className="p-2 w-12 bg-green-500 text-white rounded"
+            className="p-2 w-12 bg-green-500 text-white rounded cursor-pointer"
             onClick={() => handleColorChange("green")}
           >
             Green
           </button>
           <button
-            className="p-2 w-12 bg-blue-500 text-white rounded"
+            className="p-2 w-12 bg-blue-500 text-white rounded cursor-pointer"
             onClick={() => handleColorChange("blue")}
           >
             Blue
@@ -184,7 +184,7 @@ const WhiteboardControls = ({
 
       {/* Color Picker Button */}
       <button
-        className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+        className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center cursor-pointer items-center"
         title="Color Picker"
         onClick={() => handleColorChange("red")}
       >
@@ -193,7 +193,7 @@ const WhiteboardControls = ({
 
       {/* Grid Toggle Button */}
       <button
-        className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+        className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center cursor-pointer"
         title="Show/Hide Grid"
         onClick={toggleGrid}
       >
@@ -202,7 +202,7 @@ const WhiteboardControls = ({
 
       {/* Clear Canvas Button */}
       <button
-        className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+        className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center cursor-pointer"
         title="Clear Canvas"
         onClick={() => {
           clearCanvas();

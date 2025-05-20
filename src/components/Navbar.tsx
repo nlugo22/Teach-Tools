@@ -9,9 +9,9 @@ const Navbar = () => {
           alt="Home"
           title="Home"
           onClick={() => {}}
-          className="hover:brightness-75 w-8 h-8"
+          className="hover:brightness-75 w-8 h-8 cursor-pointer"
         />
-        <button onClick={() => {}} className="hover:text-blue-300">
+        <button onClick={() => {}} className="hover:text-blue-300 cursor-pointer">
           About
         </button>
       </nav>
