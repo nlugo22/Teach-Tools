@@ -160,9 +160,8 @@ const Whiteboard = () => {
       if (!ctx || !last) return;
 
       setLines((prev) => {
-        const newLines = [...prev];
-        const lastLine = newLines[newLines.length - 1];
-        if (!lastLine) return prev;
+        if (prev.length === 0) return prev;
+        const lastLine = prev[prev.length - 1];
 
         ctx.strokeStyle = lastLine.color;
         ctx.lineWidth = lastLine.width;
@@ -171,8 +170,12 @@ const Whiteboard = () => {
         ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
 
-        lastLine.points.push(pos);
-        return newLines;
+        const updatedLine: Line = {
+          ...lastLine,
+          points: [...lastLine.points, pos],
+        };
+
+        return [...prev.slice(0, -1), updatedLine];
       });
 
       lastPosRef.current = pos;
