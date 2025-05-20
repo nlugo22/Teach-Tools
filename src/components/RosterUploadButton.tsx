@@ -7,6 +7,7 @@ interface FileUploadbuttonProps {
 const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
   ({ onFileUpload }, ref) => {
     const [file, setFile] = useState<File | null>(null);
+    const [textAreaValue, setTextAreaValue] = useState<string>("");
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = event.target.files?.[0];
@@ -14,6 +15,12 @@ const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
     };
 
     const handleFileUpload = () => {
+      if (textAreaValue.trim()) {
+        onFileUpload(textAreaValue.trim());
+        setTextAreaValue("");
+        return;
+      }
+
       if (!file) {
         window.alert("No file input!");
         return;
@@ -36,21 +43,38 @@ const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
     };
 
     return (
-      <div className="bg-white shadow-md rounded-md p-4 w-full max-w-sm mx-auto space-y-4">
-        <input
-          type="file"
-          accept=".txt"
-          className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
-          onChange={handleFileChange}
-          ref={ref}
-        />
-        <button
-          className="w-full py-2 px-4 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleFileUpload}
-          disabled={!file}
+      <div className="flex gap-1">
+        <textarea
+          className="flex border bg-dark"
+          placeholder="Enter names separated by an enter."
+          value={textAreaValue}
+          onChange={(e) => {
+            setTextAreaValue(e.target.value)
+            if (file) {
+              setFile(null);
+            }
+          }
+          }
         >
-          Upload Roster
-        </button>
+        </textarea>
+        <div className="bg-white rounded-md w-full max-w-sm mx-auto space-y-1">
+          <input
+            type="file"
+            accept=".txt"
+            className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+            onChange={handleFileChange}
+            ref={ref}
+            disabled={textAreaValue.trim().length > 0}
+          />
+          <button
+            className="cursor-pointer w-full py-2 px-4 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleFileUpload}
+            disabled={!file && !textAreaValue.trim()}
+          >
+            Upload Roster
+          </button>
+        </div>
+
       </div>
     );
   },
