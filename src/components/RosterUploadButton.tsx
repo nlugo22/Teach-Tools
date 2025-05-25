@@ -55,12 +55,13 @@ const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
               setFile(null);
             }
           }}
-        ></textarea>
+        />
         <div className="bg-white rounded-md w-full max-w-sm mx-auto space-y-1">
           <input
             type="file"
             accept=".txt"
-            className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+            className="cursor-pointer block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 disabled:cursor-not-allowed 
+             disabled:file:bg-gray-400 disabled:file:text-gray-100"
             onChange={handleFileChange}
             ref={ref}
             disabled={textAreaValue.trim().length > 0}
