@@ -267,100 +267,96 @@ const Roster = ({
               <th className="px-4 py-2 text-center">Name</th>
             </tr>
           </thead>
-        </table>
-        <div className="overflow-auto">
-          <table className="w-full table-auto">
-            <tbody>
-              {editedRoster.map((name, index) => (
-                <tr
-                  key={index}
-                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-gray-200`}
-                >
-                  {isNumbered && (
-                    <td className="border-r px-2 text-center w-10">
-                      {index + 1}
-                    </td>
-                  )}
-
-                  {/* Mark absent or selected */}
-                  <td
-                    onClick={() => {
-                      if (!rosterEditMode) handleMarkAbsent(name);
-                    }}
-                    className={`px-4 py-2 text-center cursor-pointer ${absentList.includes(name)
-                        ? "bg-red-400 text-white"
-                        : selectedNames.includes(name)
-                          ? "bg-gray-400 text-white"
-                          : ""
-                      }`}
-                  >
-                    {/* Edit the listed names */}
-                    {rosterEditMode ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <input
-                          className="border rounded px-2 py-1 text-sm w-full"
-                          value={editedRoster[index]}
-                          onChange={(e) => {
-                            const updated = [...editedRoster];
-                            updated[index] = e.target.value;
-                            setEditedRoster(updated);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Tab") {
-                              e.stopPropagation();
-                            }
-                          }}
-                        />
-
-                        {/* Delete a name */}
-                        <button
-                          className="cursor-pointer text-red-500 text-sm"
-                          onClick={() => {
-                            const updated = editedRoster.filter(
-                              (_, i) => i !== index,
-                            );
-                            setEditedRoster(updated);
-                          }}
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    ) : (
-                      // Name of the student if not editing
-                      name
-                    )}
+          <tbody>
+            {editedRoster.map((name, index) => (
+              <tr
+                key={index}
+                className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-gray-200`}
+              >
+                {isNumbered && (
+                  <td className="border-r px-2 text-center w-10">
+                    {index + 1}
                   </td>
-                </tr>
-              ))}
+                )}
 
-              {rosterEditMode && (
-                <tr className="bg-gray-50 hover:bg-gray-10">
-                  <td className="px-4 py-2">
+                {/* Mark absent or selected */}
+                <td
+                  onClick={() => {
+                    if (!rosterEditMode) handleMarkAbsent(name);
+                  }}
+                  className={`px-4 py-2 text-center cursor-pointer ${absentList.includes(name)
+                      ? "bg-red-400 text-white"
+                      : selectedNames.includes(name)
+                        ? "bg-gray-400 text-white"
+                        : ""
+                    }`}
+                >
+                  {/* Edit the listed names */}
+                  {rosterEditMode ? (
                     <div className="flex items-center justify-center gap-2">
                       <input
-                        placeholder="Add a new student"
                         className="border rounded px-2 py-1 text-sm w-full"
-                        value={newStudent}
-                        onChange={(e) => setNewStudent(e.target.value)}
-                      />
-                      <button
-                        className="cursor-pointer"
-                        onClick={() => {
-                          if (newStudent.trim() !== "") {
-                            setEditedRoster([...editedRoster, newStudent]);
-                            setNewStudent("");
+                        value={editedRoster[index]}
+                        onChange={(e) => {
+                          const updated = [...editedRoster];
+                          updated[index] = e.target.value;
+                          setEditedRoster(updated);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Tab") {
+                            e.stopPropagation();
                           }
                         }}
+                      />
+
+                      {/* Delete a name */}
+                      <button
+                        className="cursor-pointer text-red-500 text-sm"
+                        onClick={() => {
+                          const updated = editedRoster.filter(
+                            (_, i) => i !== index,
+                          );
+                          setEditedRoster(updated);
+                        }}
                       >
-                        +
+                        🗑️
                       </button>
                     </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                  ) : (
+                    // Name of the student if not editing
+                    name
+                  )}
+                </td>
+              </tr>
+            ))}
+
+            {rosterEditMode && (
+              <tr className="bg-gray-50 hover:bg-gray-10">
+                <td className="px-4 py-2">
+                  <div className="flex items-center justify-center gap-2">
+                    <input
+                      placeholder="Add a new student"
+                      className="border rounded px-2 py-1 text-sm w-full"
+                      value={newStudent}
+                      onChange={(e) => setNewStudent(e.target.value)}
+                    />
+                    <button
+                      className="cursor-pointer"
+                      onClick={() => {
+                        if (newStudent.trim() !== "") {
+                          setEditedRoster([...editedRoster, newStudent]);
+                          setNewStudent("");
+                        }
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
