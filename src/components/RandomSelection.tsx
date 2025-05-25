@@ -155,9 +155,14 @@ const RandomSelection = () => {
     }, 3000);
   };
 
-  const validateRosterName = (rosterName: string) => {
+  const validateRosterName = (rosterName: string, oldName?: string) => {
     const trimmed = rosterName.trim();
     if (!trimmed) return "Roster name is required";
+
+    if (oldName && trimmed === oldName) {
+      return null;
+    }
+
     if (listRosterNames().includes(trimmed))
       return "Roster name must be unique!";
     return null;
@@ -211,22 +216,37 @@ const RandomSelection = () => {
     }, 1000);
   };
 
-  const handleEditRoster = (oldName: string, newName: string) => {
+  const handleEditRoster = (
+    oldName: string,
+    newName: string,
+    newRosterList: string[] | null = null,
+  ) => {
     if (!newName) return;
-    const error = validateRosterName(newName);
+    const error = validateRosterName(newName, oldName);
     if (error) {
       setErrorMessage(error);
       return;
     }
 
-    const data = loadRoster(oldName);
+    // Find the data
+    let data = loadRoster(oldName);
+
     if (!data) {
       setErrorMessage("Roster could not be found!");
       return;
     }
-    saveRoster(newName, data);
-    deleteRoster(oldName);
 
+    // Check if there are changes in the list of names
+    if (newRosterList) {
+      data.rosterList = newRosterList;
+    }
+
+    saveRoster(newName, data);
+    if (newName !== oldName) {
+      deleteRoster(oldName);
+    }
+
+    // Change to the last edited roster.
     const updated = listRosterNames();
     if (updated.includes(newName)) {
       setSelectedRoster(newName);
@@ -279,8 +299,11 @@ const RandomSelection = () => {
       {allRosters.length === 0 && (
         <div className="flex justify-center items-center flex-grow">
           <div className="bg-white shadow-md rounded-md p-6 max-w-sm w-full space-y-4">
-            <h2 className="text-xl font-semibold mb-4 text-center">Upload Student Roster</h2>
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Upload Student Roster
+            </h2>
             <RosterUploadButton
+              className="flex gap-1"
               onFileUpload={(content) => {
                 const result = parseRosterUpload(content);
                 if (!result) return;

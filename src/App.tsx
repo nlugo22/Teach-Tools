@@ -14,19 +14,29 @@ enum Modules {
 const modules = Object.values(Modules);
 
 function App() {
-  const [isKeyBindsDisplayed, setIsKeybindsDisplayed] = useState<boolean>(false);
+  const [isKeyBindsDisplayed, setIsKeybindsDisplayed] =
+    useState<boolean>(false);
   const [activeModule, setActiveModule] = useState<string>(() => {
     const saved = localStorage.getItem("activeModule");
     return saved ?? Modules.WHITEBOARD;
   });
 
-  const displayKeybinds = () => setIsKeybindsDisplayed(true);;
+  const displayKeybinds = () => setIsKeybindsDisplayed(true);
   const hideKeybinds = () => setIsKeybindsDisplayed(false);
 
   // Handle tab key to cycle through modules
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      if (e.key === "Tab") {
+      if (
+        e.key === "Tab" &&
+        e.target instanceof HTMLElement &&
+        !(
+          e.target.tagName === "INPUT" ||
+          e.target.tagName === "TEXTAREA" ||
+          e.target.tagName === "BUTTON" ||
+          e.target.isContentEditable
+        )
+      ) {
         e.preventDefault();
         setActiveModule((prev) => {
           const index = modules.indexOf(prev as Modules);
@@ -59,24 +69,25 @@ function App() {
           <button
             key={label}
             onClick={() => setActiveModule(label)}
-            className={`pb-1 border-b-2 transition-all duration-200 ${
-              activeModule === label
+            className={`pb-1 border-b-2 transition-all duration-200 ${activeModule === label
                 ? "border-blue-500 text-blue-600 font-semibold"
                 : "border-transparent text-gray-500 hover:text-blue-500"
-            }`}
+              }`}
           >
             {label}
           </button>
         ))}
         <button
           className="cursor-pointer absolute right-4 text-gray-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onClick={() => displayKeybinds()}  // Replace with your function
+          onClick={() => displayKeybinds()} // Replace with your function
         >
           <HelpCircle className="w-8 h-8" />
         </button>
       </div>
 
-      {isKeyBindsDisplayed && <Keybinds activeModule={activeModule} onClose={hideKeybinds} />}
+      {isKeyBindsDisplayed && (
+        <Keybinds activeModule={activeModule} onClose={hideKeybinds} />
+      )}
 
       {/* Main Module Content */}
       <main className="">

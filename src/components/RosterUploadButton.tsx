@@ -2,10 +2,11 @@ import { forwardRef, useState } from "react";
 
 interface FileUploadbuttonProps {
   onFileUpload: (fileContent: string) => void;
+  className: string;
 }
 
 const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
-  ({ onFileUpload }, ref) => {
+  ({ onFileUpload, className }, ref) => {
     const [file, setFile] = useState<File | null>(null);
     const [textAreaValue, setTextAreaValue] = useState<string>("");
 
@@ -43,20 +44,18 @@ const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
     };
 
     return (
-      <div className="flex gap-1">
+      <div className={className}>
         <textarea
           className="flex border bg-dark"
           placeholder="Enter names separated by an enter."
           value={textAreaValue}
           onChange={(e) => {
-            setTextAreaValue(e.target.value)
+            setTextAreaValue(e.target.value);
             if (file) {
               setFile(null);
             }
-          }
-          }
-        >
-        </textarea>
+          }}
+        ></textarea>
         <div className="bg-white rounded-md w-full max-w-sm mx-auto space-y-1">
           <input
             type="file"
@@ -74,7 +73,6 @@ const RosterUploadButton = forwardRef<HTMLInputElement, FileUploadbuttonProps>(
             Upload Roster
           </button>
         </div>
-
       </div>
     );
   },

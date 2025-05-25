@@ -19,12 +19,14 @@ export const saveRoster = (name: string, partialData: RosterData) => {
 
     allRosters[name] = fullData;
     localStorage.setItem("allRosters", JSON.stringify(allRosters));
-    console.log(`Saved roster: ${name} with data: ${fullData}`);
+    console.log(`Saved roster:`);
+    printData(name);
 };
 
 export const loadRoster = (name: string) => {
     const allRosters = JSON.parse(localStorage.getItem("allRosters") || "{}");
-    console.log(`Loading: ${allRosters[name]}`);
+    console.log(`Loading:`);
+    printData(name);
     return allRosters[name] || null;
 }
 
@@ -47,4 +49,10 @@ export const resetAll = () => {
         localStorage.removeItem("allRosters");
         localStorage.removeItem("lastUsedRoster");
     }
+}
+
+const printData = (roster) => {
+  const allRosters = JSON.parse(localStorage.getItem("allRosters") || "{}");
+  const data = allRosters[roster];
+  console.log(`Roster data for "${roster}":`, JSON.stringify(data, null, 2));
 }
