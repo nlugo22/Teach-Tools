@@ -51,7 +51,7 @@ export const resetAll = () => {
     }
 }
 
-const printData = (roster) => {
+const printData = (roster: string) => {
   const allRosters = JSON.parse(localStorage.getItem("allRosters") || "{}");
   const data = allRosters[roster];
   console.log(`Roster data for "${roster}":`, JSON.stringify(data, null, 2));
