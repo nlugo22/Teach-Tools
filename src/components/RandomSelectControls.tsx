@@ -108,7 +108,7 @@ const RandomSelectControls = ({
   };
 
   return (
-    <div className="flex flex-col gap-3 w-[10vw] sm:w-[15vw] max-h-[80vh] overflow-y-auto sm:max-w-xs">
+    <div className="flex flex-col gap-3 w-[15vw] max-h-[80vh] overflow-y-auto sm:max-w-xs">
       {/* Select names */}
       <button
         ref={spinButtonRef}
