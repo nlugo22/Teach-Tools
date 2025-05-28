@@ -80,7 +80,7 @@ const Roster = ({
 
   return (
     <div
-      className="relative w-[15vw] h-[80vh] overflow-y-auto text-center shadow"
+      className="relative w-[20vw] sm:w-[15vw] h-[80vh] overflow-y-auto text-center shadow"
       ref={rosterContainerRef}
     >
       {/* Header Name Button */}
@@ -274,7 +274,7 @@ const Roster = ({
                 className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-gray-200`}
               >
                 {isNumbered && (
-                  <td className="border-r px-2 text-center w-10">
+                  <td className="border-r px-2 text-center text-xs sm:text-base w-10">
                     {index + 1}
                   </td>
                 )}
@@ -284,7 +284,7 @@ const Roster = ({
                   onClick={() => {
                     if (!rosterEditMode) handleMarkAbsent(name);
                   }}
-                  className={`px-4 py-2 text-center cursor-pointer ${absentList.includes(name)
+                  className={`px-4 py-2 text-center text-xs sm:text-lg cursor-pointer ${absentList.includes(name)
                       ? "bg-red-400 text-white"
                       : selectedNames.includes(name)
                         ? "bg-gray-400 text-white"

@@ -316,7 +316,6 @@ const RandomSelection = () => {
 
       {allRosters.length > 0 && (
         <>
-          <div className="p-2">
             <RandomSelectControls
               spinnerCount={spinnerCount}
               handleSpinnerCountChange={handleSpinnerCountChange}
@@ -334,7 +333,6 @@ const RandomSelection = () => {
               handleGoBack={handleGoBack}
               selectedNames={selectedNames}
             />
-          </div>
 
           {isRosterDisplayed && (
             <div className="">
