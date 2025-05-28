@@ -13,8 +13,11 @@ const Keybinds = ({ onClose, activeModule }: Props) => {
       e: "Toggle eraser",
       q: "Set brush color black.",
       r: "Set brush color red.",
+      o: "Set brush color orange.",
+      y: "Set brush color yellow.",
       g: "Set brush color green.",
       b: "Set brush color blue.",
+      p: "Set brush color purple.",
       c: "Clear the whiteboard.",
     },
     "Random Select": {

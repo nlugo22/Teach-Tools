@@ -84,7 +84,7 @@ const Roster = ({
       ref={rosterContainerRef}
     >
       {/* Header Name Button */}
-      <div className="text-center sticky z-10 top-0 bg-blue-600 text-2xl text-white rounded">
+      <div className="text-center sticky z-10 top-0 bg-blue-600 text-xs sm:text-2xl text-white rounded">
         {rosterEditMode ? (
           <input
             className="w-full text-white flex text-center items-center cursor-pointer justify-center gap-1 focus:outline-none"
@@ -120,12 +120,12 @@ const Roster = ({
             {allRosters.map((name) => (
               <li
                 key={name}
-                className="flex justify-between items-center gap-1 text-lg"
+                className="flex justify-between items-center gap-1 text-xs sm:text-lg"
               >
                 {editingName === name ? (
                   <input
                     type="text"
-                    className="border border-gray-300 rounded px-1 py-1 text-sm w-full"
+                    className="border border-gray-300 rounded px-1 py-1 text-xs sm:text-sm w-full"
                     value={rosterHeaderValue}
                     autoFocus
                     onChange={(e) => setRosterHeaderValue(e.target.value)}
@@ -159,7 +159,7 @@ const Roster = ({
                     <div className="p-2 flex justify-center gap-2">
                       <button
                         type="button"
-                        className="cursor-pointer bg-blue-500 text-white px-1 py-1 text-sm rounded hover:bg-blue-600"
+                        className="cursor-pointer bg-blue-500 text-white px-1 py-1 text-xs sm:text-sm rounded hover:bg-blue-600"
                         onClick={() =>
                           handleSave(editingName, rosterHeaderValue)
                         }
@@ -168,7 +168,7 @@ const Roster = ({
                       </button>
                       <button
                         type="button"
-                        className="cursor-pointer bg-gray-400 text-white px-1 text-sm py-1 rounded hover:bg-gray-500"
+                        className="cursor-pointer bg-gray-400 text-white px-1 text-xs sm:text-sm py-1 rounded hover:bg-gray-500"
                         onClick={() => {
                           // Discard changes
                           setEditedRoster([...roster]);
@@ -183,7 +183,7 @@ const Roster = ({
                     <>
                       {/* Edit roster button */}
                       <button
-                        className="cursor-pointer text-blue-600 text-sm"
+                        className="cursor-pointer text-blue-600 text-xs sm:text-sm"
                         onClick={() => {
                           const all = JSON.parse(
                             localStorage.getItem("allRosters") || "{}",
@@ -209,7 +209,7 @@ const Roster = ({
 
                       {/* Delete roster button */}
                       <button
-                        className="cursor-pointer text-red-600 text-sm"
+                        className="cursor-pointer text-red-600 text-xs sm:text-sm"
                         onClick={() => handleDeleteRoster(name)}
                       >
                         🗑️
@@ -226,11 +226,11 @@ const Roster = ({
             <input
               type="text"
               ref={addNameRef}
-              className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
+              className="border border-gray-300 rounded px-2 py-1 text-xs sm:text-sm w-full"
               placeholder="New roster for current class."
             />
             <button
-              className="cursor-pointer bg-green-500 text-white text-sm px-3 py-1 rounded hover:bg-green-600"
+              className="cursor-pointer bg-green-500 text-white text-xs sm:text-sm px-3 py-1 rounded hover:bg-green-600"
               onClick={handleAddClick}
             >
               Add
@@ -251,7 +251,7 @@ const Roster = ({
 
           {/* Error message */}
           {errorMessage && (
-            <div className="text-red-600 text-sm">{errorMessage}</div>
+            <div className="text-red-600 text-xs sm:text-sm">{errorMessage}</div>
           )}
         </div>
       )}
@@ -295,7 +295,7 @@ const Roster = ({
                   {rosterEditMode ? (
                     <div className="flex items-center justify-center gap-2">
                       <input
-                        className="border rounded px-2 py-1 text-sm w-full"
+                        className="border rounded px-2 py-1 text-xs sm:text-sm w-full"
                         value={editedRoster[index]}
                         onChange={(e) => {
                           const updated = [...editedRoster];

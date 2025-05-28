@@ -233,9 +233,8 @@ const Whiteboard = () => {
 
   /* ────────────────────────────── render ─────────────────────────────── */
   return (
-    <div className="relative h-full w-full">
+    <div className="relative min-h-screen w-screen">
       {/* ───   Controls     ────────────────────────────────────────────────────── */}
-      <div className="absolute top-4 left-4 z-10 bg-white shadow-md border border-gray-200 rounded-md p-2 pointer-events-auto">
         <WhiteboardControls
           activeTab={activeTab}
           handleActiveTabChange={handleActiveTabChange}
@@ -246,7 +245,6 @@ const Whiteboard = () => {
           toggleGrid={toggleGrid}
           isErasing={isErasing}
         />
-      </div>
 
       {/* ─── Drawing area ───────────────────────────────────────────────── */}
       {/* Grid canvas (below, no pointer events) */}
