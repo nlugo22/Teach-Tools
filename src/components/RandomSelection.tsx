@@ -32,7 +32,7 @@ const RandomSelection = () => {
 
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  // Initial check for existing roster
+  /* ────────────────────────── initial setup ────────────────────────────── */
   useEffect(() => {
     if (allRosters.length > 0) {
       const lastUsed = localStorage.getItem("lastUsedRoster");
@@ -47,7 +47,7 @@ const RandomSelection = () => {
     }
   }, [allRosters]);
 
-  // Load when the selectedRoster changes
+  /* ────────────────────────── load when selectedRoster changes────────────────────────────── */
   useEffect(() => {
     if (selectedRoster) {
       const data = loadRoster(selectedRoster);
@@ -64,6 +64,7 @@ const RandomSelection = () => {
     }
   }, [selectedRoster]);
 
+  /* ────────────────────────── save when absent, selected, or spinner names changes────────────────────────────── */
   useEffect(() => {
     if (isRosterLoaded) {
       setTimeout(() => {
@@ -78,11 +79,14 @@ const RandomSelection = () => {
     }
   }, [absentList, selectedNames, spinnerCount]);
 
+  /* ────────────────────────── initialize the list of rosters ────────────────────────────── */
   useEffect(() => {
     setAllRosters(listRosterNames());
   }, []);
 
   // Sort the roster
+
+  /* ────────────────────────── sort the list of names ────────────────────────────── */
   useEffect(() => {
     const sorted = [...rosterList].sort();
     setSortedRoster(sorted);
@@ -96,9 +100,7 @@ const RandomSelection = () => {
     setAllRosters(storedRosters);
   };
 
-  /*******************/
-  /* SPINNER SECTION */
-  /*******************/
+  /* ────────────────────────── Spinner helpers ────────────────────────────── */
   const calculateNumAvailableNames = () => {
     return rosterList.filter(
       (name) => !selectedNames.includes(name) && !absentList.includes(name),
@@ -155,6 +157,7 @@ const RandomSelection = () => {
     }, 3000);
   };
 
+  /* ────────────────────────── Validation for uniqueness and length ────────────────────────────── */
   const validateRosterName = (rosterName: string, oldName?: string) => {
     const trimmed = rosterName.trim();
     if (!trimmed) return "Roster name is required";

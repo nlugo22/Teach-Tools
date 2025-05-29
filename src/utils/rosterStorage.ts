@@ -19,14 +19,10 @@ export const saveRoster = (name: string, partialData: RosterData) => {
 
     allRosters[name] = fullData;
     localStorage.setItem("allRosters", JSON.stringify(allRosters));
-    console.log(`Saved roster:`);
-    printData(name);
 };
 
 export const loadRoster = (name: string) => {
     const allRosters = JSON.parse(localStorage.getItem("allRosters") || "{}");
-    console.log(`Loading:`);
-    printData(name);
     return allRosters[name] || null;
 }
 
@@ -34,13 +30,10 @@ export const deleteRoster = (name: string) => {
     const allRosters = JSON.parse(localStorage.getItem("allRosters") || "{}");
     delete allRosters[name];
     localStorage.setItem("allRosters", JSON.stringify(allRosters));
-    console.log(`Deleted ${name}`);
-    console.log(Object.keys(allRosters));
 }
 
 export const listRosterNames = () => {
     const allRosters = JSON.parse(localStorage.getItem("allRosters") || "{}");
-    console.log(Object.keys(allRosters));
     return Object.keys(allRosters);
 }
 
@@ -49,10 +42,4 @@ export const resetAll = () => {
         localStorage.removeItem("allRosters");
         localStorage.removeItem("lastUsedRoster");
     }
-}
-
-const printData = (roster: string) => {
-  const allRosters = JSON.parse(localStorage.getItem("allRosters") || "{}");
-  const data = allRosters[roster];
-  console.log(`Roster data for "${roster}":`, JSON.stringify(data, null, 2));
 }

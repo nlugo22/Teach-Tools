@@ -47,6 +47,7 @@ const Roster = ({
   const rosterContainerRef = useRef<HTMLDivElement>(null);
   const rosterListRef = useRef<HTMLDivElement>(null);
 
+  /* ────────────────────────── update the visual name display ────────────────────────────── */
   useEffect(() => {
     setEditedRoster([...roster]);
   }, [roster]);

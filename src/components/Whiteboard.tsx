@@ -15,6 +15,8 @@ const Whiteboard = () => {
   const [lines, setLines] = useState<Line[]>([]);
   const [showGrid, setShowGrid] = useState(false);
 
+
+  /* ──────────────────────────── refs ─────────────────────────── */
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gridCanvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -27,7 +29,7 @@ const Whiteboard = () => {
     const gridCanvas = gridCanvasRef.current;
 
     if (canvas && gridCanvas) {
-      // Match viewport size (you can replace with parent width/height logic if you prefer)
+      // Match viewport size 
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       gridCanvas.width = window.innerWidth;

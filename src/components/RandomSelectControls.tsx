@@ -48,7 +48,7 @@ const RandomSelectControls = ({
   const spinButtonRef = useRef<HTMLButtonElement>(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
-  // Keyboard shortcuts
+  /* ────────────────────────── Keyboard shortcuts ────────────────────────────── */
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const activeElement = document.activeElement;
