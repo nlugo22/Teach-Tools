@@ -316,6 +316,7 @@ const RandomSelection = () => {
 
       {allRosters.length > 0 && (
         <>
+          <div className="w-1/5 sm:w-auto">
             <RandomSelectControls
               spinnerCount={spinnerCount}
               handleSpinnerCountChange={handleSpinnerCountChange}
@@ -333,9 +334,9 @@ const RandomSelection = () => {
               handleGoBack={handleGoBack}
               selectedNames={selectedNames}
             />
-
+          </div>
           {isRosterDisplayed && (
-            <div className="">
+            <div className="w-1/3 sm:w-auto">
               <Roster
                 isNumbered={isNumbered}
                 allRosters={allRosters}
@@ -355,7 +356,7 @@ const RandomSelection = () => {
           )}
 
           {/* SpinNames */}
-          <div className="m-auto">
+          <div className="m-auto flex-1 sm:flex-auto">
             <SpinNames
               spinnerNames={spinnerNames}
               spinnerCount={spinnerCount}

@@ -80,7 +80,7 @@ const Roster = ({
 
   return (
     <div
-      className="relative w-[20vw] sm:w-[15vw] h-[80vh] overflow-y-auto text-center shadow"
+      className="sm:w-[15vw] h-[80vh] overflow-y-auto text-center shadow"
       ref={rosterContainerRef}
     >
       {/* Header Name Button */}
@@ -259,7 +259,7 @@ const Roster = ({
       {/* Roster Table */}
       <div ref={rosterListRef} className="flex flex-col">
         <table className="table-auto border border-gray-300 select-none">
-          <thead className="bg-blue-500 text-white rounded">
+          <thead className="bg-blue-500 text-white text-xs sm:text-base rounded">
             <tr>
               {isNumbered && (
                 <th className="border-r text-center px-2 w-10">#</th>

@@ -108,7 +108,7 @@ const RandomSelectControls = ({
   };
 
   return (
-    <div className="flex flex-col gap-3 w-[15vw] max-h-[80vh] overflow-y-auto sm:max-w-xs">
+    <div className="gap-3 flex flex-col sm:w-[15vw] max-h-[80vh] overflow-y-auto">
       {/* Select names */}
       <button
         ref={spinButtonRef}
@@ -183,7 +183,7 @@ const RandomSelectControls = ({
           Spinner Count: {spinnerCount}
         </button>
         {isDropdownVisible && (
-          <div className="absolute overflow-y-auto full-h bg-white border rounded shadow-md mt-1 z-10">
+          <div className="relative overflow-y-auto h-full bg-white border rounded shadow-md mt-1 z-10">
             {Array.from({ length: numAvailableNames }).map((_, i) => (
               <button
                 key={i + 1}

@@ -133,7 +133,7 @@ const WhiteboardControls = ({
             {[1, 2, 3].map((num) => (
               <button
                 key={num}
-                className={`cursor-pointer py-2 w-12 font-bold  ${activeTab === num ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                className={`cursor-pointer py-2 w-8 sm:w-12 font-bold  ${activeTab === num ? "bg-blue-500 text-white" : "bg-gray-200"}`}
                 onClick={() => handleActiveTabChange(num)}
               >
                 {num}
@@ -143,66 +143,98 @@ const WhiteboardControls = ({
 
           {/* Eraser Button */}
           <button
-            className="p-2 w-12 bg-gray-100 cursor-pointer rounded hover:bg-gray-200 flex justify-center items-center"
+            className="p-2 w-8 sm:w-12 bg-gray-100 cursor-pointer rounded hover:bg-gray-200 flex justify-center items-center"
             title="Eraser"
             onClick={toggleEraser}
           >
-            <Eraser size={36} color={isErasing ? "gray" : "black"} />
+            <span className="block sm:hidden">
+              <Eraser size={25} color={isErasing ? "gray" : "black"} />
+            </span>
+            <span className="hidden sm:block">
+              <Eraser size={36} color={isErasing ? "gray" : "black"} />
+            </span>
           </button>
 
           {/* Line width */}
           <div className="relative">
             <button
               onClick={() => setShowLineWidthPicker(!showLineWidthPicker)}
-              className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+              className="p-2 w-8 sm:w-12 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
               title="Line Width"
             >
-              <SlidersHorizontal size={36} />
+              <span className="block sm:hidden">
+                <SlidersHorizontal size={25} />
+              </span>
+              <span className="hidden sm:block">
+                <SlidersHorizontal size={36} />
+              </span>
             </button>
           </div>
 
           {/* Brush Button */}
           <div className="relative">
             <button
-              className="p-2 w-12 cursor-pointer bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+              className="p-2 w-8 sm:w-12 cursor-pointer bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
               title="Brush"
               onClick={() => setColorPickerVisible(!isColorPickerVisible)}
             >
-              <Brush size={36} color={selectedColor} />
+              <span className="block sm:hidden">
+                <Brush size={25} color={selectedColor} />
+              </span>
+              <span className="hidden sm:block">
+                <Brush size={36} color={selectedColor} />
+              </span>
             </button>
           </div>
 
           {/* Color Picker Button */}
           <button
-            className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center cursor-pointer items-center"
+            className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center cursor-pointer items-center"
             title="Color Picker"
             onClick={() => handleColorChange("red")}
           >
-            <Circle size={36} color="red" />
+            <span className="block sm:hidden">
+              <Circle size={25} color="red" />
+            </span>
+            <span className="hidden sm:block">
+              <Circle size={36} color="red" />
+            </span>
           </button>
 
           {/* Grid Toggle Button */}
           <button
-            className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center cursor-pointer"
+            className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center cursor-pointer"
             title="Show/Hide Grid"
             onClick={toggleGrid}
           >
-            <Grid size={36} />
+            <span className="block sm:hidden">
+              <Grid size={25} />
+            </span>
+            <span className="hidden sm:block">
+              <Grid size={36} />
+            </span>
           </button>
-
           {/* Clear Canvas Button */}
           <button
-            className="p-2 w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center cursor-pointer"
+            className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center cursor-pointer"
             title="Clear Canvas"
             onClick={() => {
               clearCanvas();
               handleFade();
             }}
           >
-            <Trash2
-              size={36}
-              className={`transition-opacity duration-300 ${fading ? "opacity-30" : "opacity-100"}`}
-            />
+            <span className="block sm:hidden">
+              <Trash2
+                size={25}
+                className={`transition-opacity duration-300 ${fading ? "opacity-30" : "opacity-100"}`}
+              />
+            </span>
+            <span className="hidden sm:block">
+              <Trash2
+                size={36}
+                className={`transition-opacity duration-300 ${fading ? "opacity-30" : "opacity-100"}`}
+              />
+            </span>
           </button>
         </div>
 
