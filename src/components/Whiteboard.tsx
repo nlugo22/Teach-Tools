@@ -5,107 +5,91 @@ type Point = { x: number; y: number };
 type Line = { points: Point[]; color: string; width: number };
 type DrawingEvent = React.MouseEvent | React.TouchEvent;
 
+const TAB_IDS = [1, 2, 3];
+const STORAGE_KEY = "whiteboardLinesAndTexts";
+
 const Whiteboard = () => {
-  /* ──────────────────────────── state / refs ─────────────────────────── */
   const [activeTab, setActiveTab] = useState<number>(1);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [isErasing, setIsErasing] = useState(false);
   const [lineWidth, setLineWidth] = useState<number>(5);
   const [currentColor, setCurrentColor] = useState<string>("black");
-  const [lines, setLines] = useState<Line[]>([]);
   const [showGrid, setShowGrid] = useState(false);
 
-
-  /* ──────────────────────────── refs ─────────────────────────── */
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const gridCanvasRef = useRef<HTMLCanvasElement>(null);
-  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
-  const gridCtxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const canvasRefs = useRef<Record<number, HTMLCanvasElement | null>>({});
+  const ctxRefs = useRef<Record<number, CanvasRenderingContext2D | null>>({});
+  const gridCanvasRefs = useRef<Record<number, HTMLCanvasElement | null>>({});
+  const gridCtxRefs = useRef<Record<number, CanvasRenderingContext2D | null>>(
+    {},
+  );
   const lastPosRef = useRef<Point | null>(null);
+  const isErasingRef = useRef<boolean>(false);
 
-  /* ───────────────────────────── canvas setup ────────────────────────── */
+  const linesRef = useRef<Record<number, Line[]>>({ 1: [], 2: [], 3: [] });
+  const undoStackRef = useRef<Record<number, Line[][]>>({
+    1: [],
+    2: [],
+    3: [],
+  });
+  const redoStackRef = useRef<Record<number, Line[][]>>({
+    1: [],
+    2: [],
+    3: [],
+  });
+
+  /* ─────────── Load from Local Storage ─────────── */
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const gridCanvas = gridCanvasRef.current;
-
-    if (canvas && gridCanvas) {
-      // Match viewport size 
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      gridCanvas.width = window.innerWidth;
-      gridCanvas.height = window.innerHeight;
-
-      ctxRef.current = canvas.getContext("2d");
-      gridCtxRef.current = gridCanvas.getContext("2d");
-
-      if (ctxRef.current) {
-        ctxRef.current.lineCap = "round";
-        ctxRef.current.lineJoin = "round";
-        ctxRef.current.lineWidth = lineWidth;
-        ctxRef.current.strokeStyle = currentColor;
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as {
+          lines: Record<number, Line[]>;
+        };
+        TAB_IDS.forEach((tabId) => {
+          if (parsed.lines?.[tabId])
+            linesRef.current[tabId] = parsed.lines[tabId];
+        });
+      } catch {
+        console.warn("Failed to parse saved lines/texts from localStorage");
       }
     }
   }, []);
 
-  /* ─────────────────────────── color / width updates ─────────────────── */
+  /* ─────────── Canvas Setup ─────────── */
   useEffect(() => {
-    if (ctxRef.current) {
-      ctxRef.current.strokeStyle = currentColor;
-      ctxRef.current.lineWidth = lineWidth;
-    }
-  }, [lineWidth, currentColor]);
+    TAB_IDS.forEach((tabId) => {
+      const canvas = canvasRefs.current[tabId];
+      const gridCanvas = gridCanvasRefs.current[tabId];
+      if (canvas && gridCanvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        gridCanvas.width = window.innerWidth;
+        gridCanvas.height = window.innerHeight;
 
-  /* ─────────────────────────── tab change load ───────────────────────── */
-  useEffect(() => {
-    const ctx = ctxRef.current;
-    if (!ctx) return;
+        const ctx = canvas.getContext("2d");
+        const gridCtx = gridCanvas.getContext("2d");
 
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        if (ctx) {
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+        }
 
-    const saved = localStorage.getItem(`whiteboardDrawing-${activeTab}`);
-    if (saved) {
-      const parsed: Line[] = JSON.parse(saved);
-      setLines(parsed);
-      redrawCanvas(parsed, ctx);
-    } else {
-      setLines([]);
-    }
-  }, [activeTab]);
+        ctxRefs.current[tabId] = ctx;
+        gridCtxRefs.current[tabId] = gridCtx;
 
-  /* ────────────────────────── grid helper ────────────────────────────── */
-  const toggleGrid = () => setShowGrid((prev) => !prev);
-  useEffect(() => {
-    drawGridLines(showGrid);
-  }, [showGrid]);
-
-  const drawGridLines = (show: boolean) => {
-    const gridCtx = gridCtxRef.current;
-    const gridCanvas = gridCanvasRef.current;
-    if (!gridCtx || !gridCanvas) return;
-
-    gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-
-    if (show) {
-      gridCtx.strokeStyle = "#000000";
-      gridCtx.lineWidth = 1;
-      const gridSize = 50;
-
-      for (let x = 0; x < gridCanvas.width; x += gridSize) {
-        gridCtx.beginPath();
-        gridCtx.moveTo(x, 0);
-        gridCtx.lineTo(x, gridCanvas.height);
-        gridCtx.stroke();
+        drawGridLines(gridCtx, gridCanvas, showGrid);
+        redrawCanvas(tabId);
       }
-      for (let y = 0; y < gridCanvas.height; y += gridSize) {
-        gridCtx.beginPath();
-        gridCtx.moveTo(0, y);
-        gridCtx.lineTo(gridCanvas.width, y);
-        gridCtx.stroke();
-      }
-    }
+    });
+  }, []);
+
+  /* ─────────── Local Storage ─────────── */
+  const saveToStorage = () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ lines: linesRef.current}),
+    );
   };
 
-  /* ─────────────────────────── drawing handlers ──────────────────────── */
+  /* ─────────── Drawing Helpers ─────────── */
   const getEventCoordinates = (e: DrawingEvent): Point => {
     if ("touches" in e) {
       const touch = e.touches[0];
@@ -119,156 +103,216 @@ const Whiteboard = () => {
   const startDrawing = (e: DrawingEvent) => {
     const pos = getEventCoordinates(e);
     lastPosRef.current = pos;
-    setIsDrawing(true);
-
-    if (!isErasing) {
-      const ctx = ctxRef.current;
-      if (ctx) {
-        ctx.beginPath();
-        ctx.strokeStyle = currentColor;
-        ctx.lineWidth = lineWidth;
-        ctx.moveTo(pos.x, pos.y);
-        ctx.lineTo(pos.x + 1, pos.y + 1);
-        ctx.stroke();
-      }
-      setLines((prev) => [
-        ...prev,
-        { points: [pos], color: currentColor, width: lineWidth },
-      ]);
+    if (!isErasingRef.current) {
+      const newLine: Line = {
+        points: [pos],
+        color: currentColor,
+        width: lineWidth,
+      };
+      linesRef.current[activeTab].push(newLine);
+      undoStackRef.current[activeTab].push([...linesRef.current[activeTab]]);
+      redoStackRef.current[activeTab] = [];
+      drawLineSegment(newLine, ctxRefs.current[activeTab]);
+      saveToStorage();
     }
-  };
-
-  const stopDrawing = () => {
-    setIsDrawing(false);
-    lastPosRef.current = null;
-    setLines((prev) => {
-      localStorage.setItem(
-        `whiteboardDrawing-${activeTab}`,
-        JSON.stringify(prev),
-      );
-      return prev;
-    });
   };
 
   const draw = (e: DrawingEvent) => {
-    if (!canvasRef.current) return;
+    if (!lastPosRef.current) return;
     const pos = getEventCoordinates(e);
+    const last = lastPosRef.current;
+    const ctx = ctxRefs.current[activeTab];
+    if (!ctx) return;
 
-    if (isErasing) {
+    if (isErasingRef.current) {
       handleErasing(pos);
-    } else if (isDrawing) {
-      const ctx = ctxRef.current;
-      const last = lastPosRef.current;
-      if (!ctx || !last) return;
+    } else {
+      const currentLine = linesRef.current[activeTab].slice(-1)[0];
+      if (!currentLine) return;
 
-      setLines((prev) => {
-        if (prev.length === 0) return prev;
-        const lastLine = prev[prev.length - 1];
+      ctx.strokeStyle = currentLine.color;
+      ctx.lineWidth = currentLine.width;
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
 
-        ctx.strokeStyle = lastLine.color;
-        ctx.lineWidth = lastLine.width;
-        ctx.beginPath();
-        ctx.moveTo(last.x, last.y);
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
-
-        const updatedLine: Line = {
-          ...lastLine,
-          points: [...lastLine.points, pos],
-        };
-
-        return [...prev.slice(0, -1), updatedLine];
-      });
-
-      lastPosRef.current = pos;
+      currentLine.points.push(pos);
+      saveToStorage();
     }
+
+    lastPosRef.current = pos;
   };
 
+  const stopDrawing = () => {
+    lastPosRef.current = null;
+  };
+
+  /* ─────────── Drawing / Erasing ─────────── */
   const handleErasing = (pos: Point) => {
-    if (!isDrawing) return;
-    const ctx = ctxRef.current;
+    const ctx = ctxRefs.current[activeTab];
     if (!ctx) return;
     const eraserSize = lineWidth * 2;
-
-    const remaining = lines.filter(
+    const remaining = linesRef.current[activeTab].filter(
       (line) =>
         !line.points.some(
           (p) => Math.hypot(p.x - pos.x, p.y - pos.y) <= eraserSize,
         ),
     );
-
-    setLines(remaining);
-    redrawCanvas(remaining, ctx);
+    linesRef.current[activeTab] = remaining;
+    redrawCanvas(activeTab);
+    saveToStorage();
   };
 
-  const redrawCanvas = (lns: Line[], ctx: CanvasRenderingContext2D) => {
+  const drawLineSegment = (
+    line: Line,
+    ctx: CanvasRenderingContext2D | null,
+  ) => {
+    if (!ctx) return;
+    ctx.strokeStyle = line.color;
+    ctx.lineWidth = line.width;
+    ctx.beginPath();
+    line.points.forEach((p, i) =>
+      i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
+    );
+    ctx.stroke();
+  };
+
+  const redrawCanvas = (tabId: number) => {
+    const ctx = ctxRefs.current[tabId];
+    if (!ctx) return;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    lns.forEach((line) => {
-      ctx.strokeStyle = line.color;
-      ctx.lineWidth = line.width;
-      ctx.beginPath();
-      line.points.forEach((p, i) =>
-        i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
-      );
-      ctx.stroke();
+
+    // Draw lines
+    linesRef.current[tabId].forEach((line) => drawLineSegment(line, ctx));
+
+  };
+
+  /* ─────────── Grid ─────────── */
+  const toggleGrid = () => {
+    setShowGrid((prev) => {
+      const newVal = !prev;
+      TAB_IDS.forEach((tabId) => {
+        const ctx = gridCtxRefs.current[tabId];
+        const canvas = gridCanvasRefs.current[tabId];
+        drawGridLines(ctx, canvas, newVal);
+      });
+      return newVal;
     });
   };
 
-  /* ─────────────────────────── helpers for controls ──────────────────── */
-  const handleLineWidthChange = (w: number) => setLineWidth(w);
-  const handleLineColor = (c: string) => {
-    setCurrentColor(c);
-    setIsErasing(false);
+  const drawGridLines = (
+    ctx: CanvasRenderingContext2D | null,
+    canvas: HTMLCanvasElement | null,
+    show: boolean,
+  ) => {
+    if (!ctx || !canvas) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!show) return;
+    const size = 50;
+    ctx.strokeStyle = "#eee";
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += size) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += size) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
   };
-  const clearCanvas = () => {
-    ctxRef.current?.clearRect(
-      0,
-      0,
-      canvasRef.current!.width,
-      canvasRef.current!.height,
-    );
-    localStorage.removeItem(`whiteboardDrawing-${activeTab}`);
-    setLines([]);
-  };
-  const toggleEraser = () => setIsErasing((prev) => !prev);
-  const handleActiveTabChange = (tab: number) => setActiveTab(tab);
 
-  /* ────────────────────────────── render ─────────────────────────────── */
+  /* ─────────── Clear / Undo / Redo ─────────── */
+  const clearCanvas = () => {
+    const ctx = ctxRefs.current[activeTab];
+    if (!ctx) return;
+    undoStackRef.current[activeTab].push([...linesRef.current[activeTab]]);
+    redoStackRef.current[activeTab] = [];
+    linesRef.current[activeTab] = [];
+    redrawCanvas(activeTab);
+    saveToStorage();
+  };
+
+  const undo = () => {
+    const stack = undoStackRef.current[activeTab];
+    if (!stack || stack.length === 0) return;
+    const prevState = stack.pop()!;
+    redoStackRef.current[activeTab].push([...linesRef.current[activeTab]]);
+    linesRef.current[activeTab] = prevState;
+    redrawCanvas(activeTab);
+    saveToStorage();
+  };
+
+  const redo = () => {
+    const stack = redoStackRef.current[activeTab];
+    if (!stack || stack.length === 0) return;
+    const nextState = stack.pop()!;
+    undoStackRef.current[activeTab].push([...linesRef.current[activeTab]]);
+    linesRef.current[activeTab] = nextState;
+    redrawCanvas(activeTab);
+    saveToStorage();
+  };
+
+  const toggleEraser = () => {
+    isErasingRef.current = !isErasingRef.current;
+  };
+
+  /* ─────────── Render ─────────── */
   return (
-    <div className="relative min-h-screen w-screen">
-      {/* ───   Controls     ────────────────────────────────────────────────────── */}
+    <div className="relative w-screen h-screen">
+      {/* Whiteboard Controls */}
+      <div className="absolute top-4 left-4 z-20 pointer-events-auto">
         <WhiteboardControls
           activeTab={activeTab}
-          handleActiveTabChange={handleActiveTabChange}
-          setLineWidth={handleLineWidthChange}
-          setLineColor={handleLineColor}
           clearCanvas={clearCanvas}
+          undo={undo}
+          redo={redo}
           toggleEraser={toggleEraser}
           toggleGrid={toggleGrid}
-          isErasing={isErasing}
+          setLineColor={setCurrentColor}
+          setLineWidth={setLineWidth}
+          isErasing={isErasingRef.current}
+          handleActiveTabChange={(tab) => {
+            setActiveTab(tab);
+            redrawCanvas(tab);
+          }}
         />
+      </div>
 
-      {/* ─── Drawing area ───────────────────────────────────────────────── */}
-      {/* Grid canvas (below, no pointer events) */}
-      <canvas
-        ref={gridCanvasRef}
-        className="absolute inset-0 z-0 pointer-events-none"
-      />
+      {/* Grid Canvases */}
+      {TAB_IDS.map((tabId) => (
+        <canvas
+          key={`grid-${tabId}`}
+          ref={(el) => (gridCanvasRefs.current[tabId] = el)}
+          className={`absolute inset-0 z-0 pointer-events-none ${
+            tabId === activeTab ? "" : "hidden"
+          }`}
+        />
+      ))}
 
-      {/* Main drawing canvas */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 z-0"
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-        onTouchStart={startDrawing}
-        onTouchMove={draw}
-        onTouchEnd={stopDrawing}
-        onTouchCancel={stopDrawing}
-        style={{ touchAction: "none" }}
-      />
+      {/* Drawing Canvases */}
+      {TAB_IDS.map((tabId) => (
+        <canvas
+          key={`draw-${tabId}`}
+          ref={(el) => (canvasRefs.current[tabId] = el)}
+          className={`absolute inset-0 z-10 ${
+            tabId === activeTab ? "" : "hidden"
+          }`}
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+          onTouchCancel={stopDrawing}
+          style={{ touchAction: "none" }}
+        />
+      ))}
     </div>
   );
 };

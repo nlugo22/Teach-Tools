@@ -11,10 +11,12 @@ import {
 interface Props {
   activeTab: number;
   clearCanvas: () => void;
+  undo: () => void;
+  redo: () => void;
   toggleEraser: () => void;
   toggleGrid: () => void;
   setLineColor: (color: string) => void;
-  setLineWidth: (width: number) => void;
+  setLineWidth: React.Dispatch<React.SetStateAction<number>>;
   isErasing: boolean;
   handleActiveTabChange: (tab: number) => void;
 }
@@ -22,6 +24,8 @@ interface Props {
 const WhiteboardControls = ({
   activeTab,
   clearCanvas,
+  undo,
+  redo,
   toggleEraser,
   toggleGrid,
   setLineColor,
@@ -29,37 +33,31 @@ const WhiteboardControls = ({
   isErasing,
   handleActiveTabChange,
 }: Props) => {
-  const [showLineWidthPicker, setShowLineWidthPicker] =
-    useState<boolean>(false);
-  const [selectedColor, setSelectedColor] = useState<string>("black");
-  const [isColorPickerVisible, setColorPickerVisible] =
-    useState<boolean>(false);
-  const [fading, setFading] = useState<boolean>(false);
+  const [showLineWidthPicker, setShowLineWidthPicker] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("black");
+  const [isColorPickerVisible, setColorPickerVisible] = useState(false);
+  const [fading, setFading] = useState(false);
+
   const lineWidthRef = useRef<HTMLDivElement>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
-  const lineWidth = [2, 5, 10, 25];
+  const lineWidthOptions = [2, 5, 10, 25];
 
-  // Hide the color picker and line width when not focused
+  // Hide popups when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         colorPickerRef.current &&
-        !colorPickerRef.current.contains(event.target as Node)
-      ) {
+        !colorPickerRef.current.contains(e.target as Node)
+      )
         setColorPickerVisible(false);
-      }
       if (
         lineWidthRef.current &&
-        !lineWidthRef.current.contains(event.target as Node)
-      ) {
+        !lineWidthRef.current.contains(e.target as Node)
+      )
         setShowLineWidthPicker(false);
-      }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleColorChange = (color: string) => {
@@ -73,12 +71,39 @@ const WhiteboardControls = ({
     setTimeout(() => setFading(false), 180);
   };
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    const key = event.key.toLowerCase();
+  const handleKeyDown = (e: KeyboardEvent) => {
+    const key = e.key.toLowerCase();
+
+    // Increase and decrease line width
+    if (key === "w") {
+      setLineWidth((prev: number) => {
+        const next = lineWidthOptions.find((w) => w > prev);
+        return next !== undefined ? next : prev;
+      });
+    }
+
+    if (key === "s") {
+      setLineWidth((prev: number) => {
+        const prevOption = [...lineWidthOptions]
+          .reverse()
+          .find((w) => w < prev);
+        return prevOption !== undefined ? prevOption : prev;
+      });
+    }
 
     switch (key) {
       case "e":
         toggleEraser();
+        break;
+      case "c":
+        clearCanvas();
+        handleFade();
+        break;
+      case "z":
+        undo();
+        break;
+      case "x":
+        redo();
         break;
       case "q":
         handleColorChange("black");
@@ -101,18 +126,10 @@ const WhiteboardControls = ({
       case "p":
         handleColorChange("purple");
         break;
-      case "c":
-        clearCanvas();
-        handleFade();
-        break;
       case "1":
-        handleActiveTabChange(1);
-        break;
       case "2":
-        handleActiveTabChange(2);
-        break;
       case "3":
-        handleActiveTabChange(3);
+        handleActiveTabChange(Number(key));
         break;
       default:
         break;
@@ -122,209 +139,142 @@ const WhiteboardControls = ({
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [activeTab]);
 
   return (
     <div className="absolute top-4 left-4 z-10 bg-white shadow-md border border-gray-200 rounded-md p-2 pointer-events-auto">
       <div className="flex flex-col gap-2 relative">
-        {/* Scrollable container for buttons only */}
-        <div className="overflow-y-auto max-h-[80vh] flex flex-col gap-2">
-          <div className="flex flex-col justify-center">
-            {[1, 2, 3].map((num) => (
-              <button
-                key={num}
-                className={`cursor-pointer py-2 w-8 sm:w-12 font-bold  ${activeTab === num ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-                onClick={() => handleActiveTabChange(num)}
-              >
-                {num}
-              </button>
-            ))}
-          </div>
-
-          {/* Eraser Button */}
-          <button
-            className="p-2 w-8 sm:w-12 bg-gray-100 cursor-pointer rounded hover:bg-gray-200 flex justify-center items-center"
-            title="Eraser"
-            onClick={toggleEraser}
-          >
-            <span className="block sm:hidden">
-              <Eraser size={25} color={isErasing ? "gray" : "black"} />
-            </span>
-            <span className="hidden sm:block">
-              <Eraser size={36} color={isErasing ? "gray" : "black"} />
-            </span>
-          </button>
-
-          {/* Line width */}
-          <div className="relative">
+        <div className="flex flex-col justify-center">
+          {[1, 2, 3].map((num) => (
             <button
-              onClick={() => setShowLineWidthPicker(!showLineWidthPicker)}
-              className="p-2 w-8 sm:w-12 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
-              title="Line Width"
+              key={num}
+              className={`cursor-pointer py-2 w-8 sm:w-12 font-bold ${
+                activeTab === num ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+              onClick={() => handleActiveTabChange(num)}
             >
-              <span className="block sm:hidden">
-                <SlidersHorizontal size={25} />
-              </span>
-              <span className="hidden sm:block">
-                <SlidersHorizontal size={36} />
-              </span>
+              {num}
             </button>
-          </div>
-
-          {/* Brush Button */}
-          <div className="relative">
-            <button
-              className="p-2 w-8 sm:w-12 cursor-pointer bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
-              title="Brush"
-              onClick={() => setColorPickerVisible(!isColorPickerVisible)}
-            >
-              <span className="block sm:hidden">
-                <Brush size={25} color={selectedColor} />
-              </span>
-              <span className="hidden sm:block">
-                <Brush size={36} color={selectedColor} />
-              </span>
-            </button>
-          </div>
-
-          {/* Color Picker Button */}
-          <button
-            className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center cursor-pointer items-center"
-            title="Color Picker"
-            onClick={() => handleColorChange("red")}
-          >
-            <span className="block sm:hidden">
-              <Circle size={25} color="red" />
-            </span>
-            <span className="hidden sm:block">
-              <Circle size={36} color="red" />
-            </span>
-          </button>
-
-          {/* Grid Toggle Button */}
-          <button
-            className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center cursor-pointer"
-            title="Show/Hide Grid"
-            onClick={toggleGrid}
-          >
-            <span className="block sm:hidden">
-              <Grid size={25} />
-            </span>
-            <span className="hidden sm:block">
-              <Grid size={36} />
-            </span>
-          </button>
-          {/* Clear Canvas Button */}
-          <button
-            className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center cursor-pointer"
-            title="Clear Canvas"
-            onClick={() => {
-              clearCanvas();
-              handleFade();
-            }}
-          >
-            <span className="block sm:hidden">
-              <Trash2
-                size={25}
-                className={`transition-opacity duration-300 ${fading ? "opacity-30" : "opacity-100"}`}
-              />
-            </span>
-            <span className="hidden sm:block">
-              <Trash2
-                size={36}
-                className={`transition-opacity duration-300 ${fading ? "opacity-30" : "opacity-100"}`}
-              />
-            </span>
-          </button>
+          ))}
         </div>
 
-        {/* Line Width Picker Dropdown */}
-        {showLineWidthPicker && (
-          <div
-            ref={lineWidthRef}
-            className="absolute top-12 left-0 z-10 bg-white border rounded shadow-md p-2 space-y-2"
-          >
-            {lineWidth.map((width) => (
-              <button
-                key={width}
-                onClick={() => {
-                  setLineWidth(width);
-                  setShowLineWidthPicker(false);
-                }}
-                className="w-20 py-1 text-center rounded hover:bg-gray-100"
-              >
-                {width}px
-              </button>
-            ))}
-          </div>
-        )}
+        <button
+          className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+          title="Eraser"
+          onClick={toggleEraser}
+        >
+          <Eraser size={36} color={isErasing ? "gray" : "black"} />
+        </button>
 
-        {/* Color Picker Dropdown (pop-out) */}
+        <div className="relative">
+          <button
+            onClick={() => setShowLineWidthPicker(!showLineWidthPicker)}
+            className="p-2 w-8 sm:w-12 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+            title="Line Width"
+          >
+            <SlidersHorizontal size={36} />
+          </button>
+          {showLineWidthPicker && (
+            <div
+              ref={lineWidthRef}
+              className="absolute top-12 left-0 z-10 bg-white border rounded shadow-md p-2 space-y-2"
+            >
+              {lineWidthOptions.map((width) => (
+                <button
+                  key={width}
+                  onClick={() => setLineWidth(width)}
+                  className="w-20 py-1 text-center rounded hover:bg-gray-100"
+                >
+                  {width}px
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <button
+          className="p-2 w-8 sm:w-12 cursor-pointer bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+          title="Brush / Color"
+          onClick={() => setColorPickerVisible(!isColorPickerVisible)}
+        >
+          <Brush size={36} color={selectedColor} />
+        </button>
+
         {isColorPickerVisible && (
           <div
             ref={colorPickerRef}
             className="absolute top-0 left-full ml-2 z-50 bg-white border rounded shadow-lg p-2"
           >
             <div className="flex flex-col gap-1">
-              <button
-                className="p-1 bg-black text-white rounded"
-                onClick={() => handleColorChange("black")}
-              >
-                Black
-              </button>
-              <button
-                className="p-1 bg-red-500 text-white rounded"
-                onClick={() => handleColorChange("red")}
-              >
-                Red
-              </button>
-              <button
-                className="p-1 bg-orange-500 text-white rounded"
-                onClick={() => handleColorChange("orange")}
-              >
-                Orange
-              </button>
-              <button
-                className="p-1 bg-yellow-500 text-white rounded"
-                onClick={() => handleColorChange("yellow")}
-              >
-                Yellow
-              </button>
-              <button
-                className="p-1 bg-green-500 text-white rounded"
-                onClick={() => handleColorChange("green")}
-              >
-                Green
-              </button>
-              <button
-                className="p-1 bg-blue-500 text-white rounded"
-                onClick={() => handleColorChange("blue")}
-              >
-                Blue
-              </button>
-              <button
-                className="p-1 bg-purple-500 text-white rounded"
-                onClick={() => handleColorChange("purple")}
-              >
-                Purple
-              </button>
-              <button
-                className="p-1 bg-white rounded"
-                onClick={() => handleColorChange("white")}
-              >
-                White
-              </button>
-            </div>
-            <div className="font-semibold text-center mt-1 border bg-black text-white rounded text-sm">
-              Pick
+              {[
+                "black",
+                "red",
+                "orange",
+                "yellow",
+                "green",
+                "blue",
+                "purple",
+                "white",
+              ].map((color) => (
+                <button
+                  key={color}
+                  className={`p-1 rounded text-white`}
+                  style={{
+                    backgroundColor: color === "white" ? "#eee" : color,
+                    color: color === "white" ? "#000" : "#fff",
+                  }}
+                  onClick={() => handleColorChange(color)}
+                >
+                  {color.charAt(0).toUpperCase() + color.slice(1)}
+                </button>
+              ))}
             </div>
             <input
               type="color"
-              className="w-full h-6 cursor-pointer"
+              className="w-full h-6 cursor-pointer mt-1"
               onChange={(e) => handleColorChange(e.target.value)}
             />
           </div>
         )}
+
+        <button
+          className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+          title="Grid"
+          onClick={toggleGrid}
+        >
+          <Grid size={36} />
+        </button>
+
+        <button
+          className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+          title="Clear"
+          onClick={() => {
+            clearCanvas();
+            handleFade();
+          }}
+        >
+          <Trash2
+            size={36}
+            className={`transition-opacity duration-300 ${
+              fading ? "opacity-30" : "opacity-100"
+            }`}
+          />
+        </button>
+
+        <div className="flex flex-col gap-2 mt-2">
+          <button
+            className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+            onClick={undo}
+          >
+            Undo
+          </button>
+          <button
+            className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+            onClick={redo}
+          >
+            Redo
+          </button>
+        </div>
       </div>
     </div>
   );
