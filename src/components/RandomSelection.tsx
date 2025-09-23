@@ -222,41 +222,26 @@ const RandomSelection = () => {
   const handleEditRoster = (
     oldName: string,
     newName: string,
-    newRosterList: string[] | null = null,
+    newRosterList: string[],
   ) => {
-    if (!newName) return;
-    const error = validateRosterName(newName, oldName);
-    if (error) {
-      setErrorMessage(error);
-      return;
-    }
+    if (!newRosterList) return;
 
-    // Find the data
-    let data = loadRoster(oldName);
-
-    if (!data) {
-      setErrorMessage("Roster could not be found!");
-      return;
-    }
-
-    // Check if there are changes in the list of names
-    if (newRosterList) {
-      data.rosterList = newRosterList;
-    }
-
+    // Load old data or create new
+    const data = loadRoster(oldName) || {};
+    data.rosterList = newRosterList;
     saveRoster(newName, data);
+
     if (newName !== oldName) {
       deleteRoster(oldName);
     }
 
-    // Change to the last edited roster.
-    const updated = listRosterNames();
-    if (updated.includes(newName)) {
-      setSelectedRoster(newName);
-      localStorage.setItem("lastUsedRoster", newName);
+    // THIS IS KEY: update state so child re-renders immediately
+    if (selectedRoster === oldName || selectedRoster === newName) {
+      setRosterList(newRosterList); // <- push the new list to state
+      setSelectedRoster(newName); // <- keep selection correct
     }
 
-    refreshAllRosters();
+    refreshAllRosters(); // update the list of all rosters
   };
 
   const handleDeleteRoster = (deleteName: string) => {

@@ -49,8 +49,10 @@ const Roster = ({
 
   /* ────────────────────────── update the visual name display ────────────────────────────── */
   useEffect(() => {
-    setEditedRoster([...roster]);
-  }, [roster]);
+    if (!rosterEditMode) {
+      setEditedRoster([...roster]);
+    }
+  }, [roster, rosterEditMode]);
 
   const handleMarkAbsent = (name: string) => {
     const updated = absentList.includes(name)
@@ -78,6 +80,8 @@ const Roster = ({
     setShowMenu(false);
     setRosterHeaderValue("");
   };
+
+  const rosterToRender = rosterEditMode ? editedRoster : roster;
 
   return (
     <div
@@ -171,7 +175,6 @@ const Roster = ({
                         type="button"
                         className="cursor-pointer bg-gray-400 text-white px-1 text-xs sm:text-sm py-1 rounded hover:bg-gray-500"
                         onClick={() => {
-                          // Discard changes
                           setEditedRoster([...roster]);
                           setRosterEditMode(false);
                           setEditingName(null);
@@ -225,16 +228,23 @@ const Roster = ({
           {/* Add new roster */}
           <div className="flex mb-2">
             <input
-              type="text"
-              ref={addNameRef}
-              className="border border-gray-300 rounded px-2 py-1 text-xs sm:text-sm w-full"
-              placeholder="New roster for current class."
+              placeholder="Add a new student"
+              className="border rounded px-2 py-1 text-sm w-full"
+              value={newStudent}
+              onChange={(e) => setNewStudent(e.target.value)}
             />
             <button
-              className="cursor-pointer bg-green-500 text-white text-xs sm:text-sm px-3 py-1 rounded hover:bg-green-600"
-              onClick={handleAddClick}
+              className="cursor-pointer"
+              onClick={() => {
+                if (newStudent.trim() !== "") {
+                  const updated = [...editedRoster, newStudent.trim()];
+                  setEditedRoster(updated);
+                  handleEditRoster(rosterName, rosterName, updated); // push to parent immediately
+                  setNewStudent("");
+                }
+              }}
             >
-              Add
+              +
             </button>
           </div>
 
@@ -252,7 +262,9 @@ const Roster = ({
 
           {/* Error message */}
           {errorMessage && (
-            <div className="text-red-600 text-xs sm:text-sm">{errorMessage}</div>
+            <div className="text-red-600 text-xs sm:text-sm">
+              {errorMessage}
+            </div>
           )}
         </div>
       )}
@@ -269,7 +281,7 @@ const Roster = ({
             </tr>
           </thead>
           <tbody>
-            {editedRoster.map((name, index) => (
+            {rosterToRender.map((name, index) => (
               <tr
                 key={index}
                 className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-gray-200`}
@@ -285,12 +297,13 @@ const Roster = ({
                   onClick={() => {
                     if (!rosterEditMode) handleMarkAbsent(name);
                   }}
-                  className={`px-4 py-2 text-center text-xs sm:text-lg cursor-pointer ${absentList.includes(name)
+                  className={`px-4 py-2 text-center text-xs sm:text-lg cursor-pointer ${
+                    absentList.includes(name)
                       ? "bg-red-400 text-white"
                       : selectedNames.includes(name)
                         ? "bg-gray-400 text-white"
                         : ""
-                    }`}
+                  }`}
                 >
                   {/* Edit the listed names */}
                   {rosterEditMode ? (
@@ -333,7 +346,7 @@ const Roster = ({
 
             {rosterEditMode && (
               <tr className="bg-gray-50 hover:bg-gray-10">
-                <td className="px-4 py-2">
+                <td className="px-4 py-2" colSpan={isNumbered ? 2 : 1}>
                   <div className="flex items-center justify-center gap-2">
                     <input
                       placeholder="Add a new student"
@@ -345,7 +358,7 @@ const Roster = ({
                       className="cursor-pointer"
                       onClick={() => {
                         if (newStudent.trim() !== "") {
-                          setEditedRoster([...editedRoster, newStudent]);
+                          setEditedRoster([...editedRoster, newStudent.trim()]);
                           setNewStudent("");
                         }
                       }}
