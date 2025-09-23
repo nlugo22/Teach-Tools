@@ -31,7 +31,6 @@ const Roster = ({
   absentList,
   setAbsentList,
   handleRosterChange,
-  handleAddRoster,
   handleUploadRoster,
   handleEditRoster,
   handleDeleteRoster,
@@ -43,7 +42,6 @@ const Roster = ({
   const [rosterEditMode, setRosterEditMode] = useState<boolean>(false);
   const [rosterHeaderValue, setRosterHeaderValue] = useState("");
   const [newStudent, setNewStudent] = useState<string>("");
-  const addNameRef = useRef<HTMLInputElement>(null);
   const rosterContainerRef = useRef<HTMLDivElement>(null);
   const rosterListRef = useRef<HTMLDivElement>(null);
 

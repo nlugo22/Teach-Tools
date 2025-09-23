@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import {
   Eraser,
   Brush,
-  Circle,
   Grid,
   Trash2,
   SlidersHorizontal,
