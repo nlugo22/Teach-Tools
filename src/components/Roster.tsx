@@ -61,16 +61,6 @@ const Roster = ({
     setAbsentList(updated);
   };
 
-  const handleAddClick = () => {
-    const value = addNameRef.current?.value.trim();
-    if (!value) return;
-    handleAddRoster(value);
-    if (addNameRef.current) {
-      addNameRef.current.value = "";
-    }
-    setShowMenu(false);
-  };
-
   const handleSave = (oldName: string, newName: string) => {
     const cleanedRoster = editedRoster.map((n) => n.trim()).filter(Boolean);
     handleEditRoster(oldName, newName, cleanedRoster);
