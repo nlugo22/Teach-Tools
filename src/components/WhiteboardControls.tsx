@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Eraser,
   Brush,
-  Grid,
   Trash2,
   SlidersHorizontal,
   Slash,
@@ -30,7 +29,6 @@ const WhiteboardControls = ({
   undo,
   redo,
   toggleEraser,
-  toggleGrid,
   setLineColor,
   setLineWidth,
   setIsStraightLine,
