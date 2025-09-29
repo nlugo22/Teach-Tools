@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Eraser,
   Brush,
   Grid,
   Trash2,
   SlidersHorizontal,
+  Slash,
 } from "lucide-react";
 
 interface Props {
@@ -16,7 +17,10 @@ interface Props {
   toggleGrid: () => void;
   setLineColor: (color: string) => void;
   setLineWidth: React.Dispatch<React.SetStateAction<number>>;
+  setIsStraightLine: React.Dispatch<React.SetStateAction<boolean>>;
+  isStraightLine: boolean;
   isErasing: boolean;
+  setIsErasing: React.Dispatch<React.SetStateAction<boolean>>;
   handleActiveTabChange: (tab: number) => void;
 }
 
@@ -29,7 +33,10 @@ const WhiteboardControls = ({
   toggleGrid,
   setLineColor,
   setLineWidth,
+  setIsStraightLine,
+  isStraightLine,
   isErasing,
+  setIsErasing,
   handleActiveTabChange,
 }: Props) => {
   const [showLineWidthPicker, setShowLineWidthPicker] = useState(false);
@@ -62,6 +69,7 @@ const WhiteboardControls = ({
   const handleColorChange = (color: string) => {
     setSelectedColor(color);
     setLineColor(color);
+    setIsErasing(false);
     setColorPickerVisible(false);
   };
 
@@ -70,75 +78,91 @@ const WhiteboardControls = ({
     setTimeout(() => setFading(false), 180);
   };
 
-  const handleKeyDown = (e: KeyboardEvent) => {
-    const key = e.key.toLowerCase();
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
 
-    // Increase and decrease line width
-    if (key === "w") {
-      setLineWidth((prev: number) => {
-        const next = lineWidthOptions.find((w) => w > prev);
-        return next !== undefined ? next : prev;
-      });
-    }
+      // Increase and decrease line width
+      if (key === "w") {
+        setLineWidth((prev: number) => {
+          const next = lineWidthOptions.find((w) => w > prev);
+          return next !== undefined ? next : prev;
+        });
+      }
 
-    if (key === "s") {
-      setLineWidth((prev: number) => {
-        const prevOption = [...lineWidthOptions]
-          .reverse()
-          .find((w) => w < prev);
-        return prevOption !== undefined ? prevOption : prev;
-      });
-    }
+      if (key === "s") {
+        setLineWidth((prev: number) => {
+          const prevOption = [...lineWidthOptions]
+            .reverse()
+            .find((w) => w < prev);
+          return prevOption !== undefined ? prevOption : prev;
+        });
+      }
 
-    switch (key) {
-      case "e":
-        toggleEraser();
-        break;
-      case "c":
-        clearCanvas();
-        handleFade();
-        break;
-      case "z":
-        undo();
-        break;
-      case "x":
-        redo();
-        break;
-      case "q":
-        handleColorChange("black");
-        break;
-      case "r":
-        handleColorChange("red");
-        break;
-      case "o":
-        handleColorChange("orange");
-        break;
-      case "y":
-        handleColorChange("yellow");
-        break;
-      case "g":
-        handleColorChange("green");
-        break;
-      case "b":
-        handleColorChange("blue");
-        break;
-      case "p":
-        handleColorChange("purple");
-        break;
-      case "1":
-      case "2":
-      case "3":
-        handleActiveTabChange(Number(key));
-        break;
-      default:
-        break;
-    }
-  };
+      switch (key) {
+        case "e":
+          toggleEraser();
+          setIsStraightLine(false);
+          break;
+        case "c":
+          clearCanvas();
+          handleFade();
+          break;
+        case "z":
+          undo();
+          break;
+        case "x":
+          redo();
+          break;
+        case "q":
+          handleColorChange("black");
+          break;
+        case "r":
+          handleColorChange("red");
+          break;
+        case "o":
+          handleColorChange("orange");
+          break;
+        case "y":
+          handleColorChange("yellow");
+          break;
+        case "g":
+          handleColorChange("green");
+          break;
+        case "b":
+          handleColorChange("blue");
+          break;
+        case "p":
+          handleColorChange("purple");
+          break;
+        case "l":
+          setIsStraightLine((prev) => !prev);
+          setIsErasing(false);
+          break;
+        case "1":
+        case "2":
+        case "3":
+          handleActiveTabChange(Number(key));
+          break;
+        default:
+          break;
+      }
+    },
+    [
+      clearCanvas,
+      undo,
+      redo,
+      toggleEraser,
+      setLineColor,
+      setLineWidth,
+      handleActiveTabChange,
+    ],
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeTab]);
+  }, [handleKeyDown]);
 
   return (
     <div className="absolute top-4 left-4 z-10 bg-white shadow-md border border-gray-200 rounded-md p-2 pointer-events-auto">
@@ -158,11 +182,12 @@ const WhiteboardControls = ({
         </div>
 
         <button
-          className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
+          className={`p-2 w-8 sm:w-12 rounded flex justify-center items-center transition-colors
+    ${isErasing ? "bg-blue-500 text-white" : "bg-gray-100 hover:bg-gray-200"}`}
           title="Eraser"
           onClick={toggleEraser}
         >
-          <Eraser size={36} color={isErasing ? "gray" : "black"} />
+          <Eraser size={36} color={isErasing ? "white" : "black"} />
         </button>
 
         <div className="relative">
@@ -190,7 +215,6 @@ const WhiteboardControls = ({
             </div>
           )}
         </div>
-
         <button
           className="p-2 w-8 sm:w-12 cursor-pointer bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
           title="Brush / Color"
@@ -198,7 +222,6 @@ const WhiteboardControls = ({
         >
           <Brush size={36} color={selectedColor} />
         </button>
-
         {isColorPickerVisible && (
           <div
             ref={colorPickerRef}
@@ -237,12 +260,21 @@ const WhiteboardControls = ({
         )}
 
         <button
+          onClick={() => setIsStraightLine((prev) => !prev)}
+          className={`p-2 w-8 sm:w-12 cursor-pointer rounded flex justify-center items-center transition-colors
+    ${isStraightLine ? "bg-blue-500 text-white" : "bg-gray-100 hover:bg-gray-200"}`}
+        >
+          <Slash size={20} />
+        </button>
+
+        {/*        <button
           className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
           title="Grid"
           onClick={toggleGrid}
         >
           <Grid size={36} />
         </button>
+        */}
 
         <button
           className="p-2 w-8 sm:w-12 bg-gray-100 rounded hover:bg-gray-200 flex justify-center items-center"
@@ -259,7 +291,6 @@ const WhiteboardControls = ({
             }`}
           />
         </button>
-
         <div className="flex flex-col gap-2 mt-2">
           <button
             className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"

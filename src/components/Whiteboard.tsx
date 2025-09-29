@@ -13,6 +13,11 @@ const Whiteboard = () => {
   const [lineWidth, setLineWidth] = useState<number>(5);
   const [currentColor, setCurrentColor] = useState<string>("black");
   const [showGrid, setShowGrid] = useState(false);
+  const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
+  const [isStraightLine, setIsStraightLine] = useState(false);
+  const [isErasing, setIsErasing] = useState<boolean>(false);
 
   const canvasRefs = useRef<Record<number, HTMLCanvasElement | null>>({});
   const ctxRefs = useRef<Record<number, CanvasRenderingContext2D | null>>({});
@@ -21,7 +26,7 @@ const Whiteboard = () => {
     {},
   );
   const lastPosRef = useRef<Point | null>(null);
-  const isErasingRef = useRef<boolean>(false);
+  const straightLineStartRef = useRef<Point | null>(null);
 
   const linesRef = useRef<Record<number, Line[]>>({ 1: [], 2: [], 3: [] });
   const undoStackRef = useRef<Record<number, Line[][]>>({
@@ -85,8 +90,23 @@ const Whiteboard = () => {
   const saveToStorage = () => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ lines: linesRef.current}),
+      JSON.stringify({ lines: linesRef.current }),
     );
+  };
+
+  /* ─────────── Track mouse move ─────────── */
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+    setCursorPos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+
+    draw(e);
+  };
+
+  const handleMouseLeave = () => {
+    setCursorPos(null);
   };
 
   /* ─────────── Drawing Helpers ─────────── */
@@ -103,7 +123,12 @@ const Whiteboard = () => {
   const startDrawing = (e: DrawingEvent) => {
     const pos = getEventCoordinates(e);
     lastPosRef.current = pos;
-    if (!isErasingRef.current) {
+
+    if (isErasing) return;
+
+    if (isStraightLine) {
+      straightLineStartRef.current = pos;
+    } else {
       const newLine: Line = {
         points: [pos],
         color: currentColor,
@@ -118,15 +143,35 @@ const Whiteboard = () => {
   };
 
   const draw = (e: DrawingEvent) => {
-    if (!lastPosRef.current) return;
     const pos = getEventCoordinates(e);
-    const last = lastPosRef.current;
     const ctx = ctxRefs.current[activeTab];
     if (!ctx) return;
 
-    if (isErasingRef.current) {
+    if (isErasing) {
       handleErasing(pos);
+      return;
+    }
+
+    if (isStraightLine && straightLineStartRef.current) {
+      // REDRAW ALL EXISTING LINES FIRST
+      redrawCanvas(activeTab);
+
+      // DRAW TEMPORARY STRAIGHT LINE
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = lineWidth;
+      ctx.beginPath();
+      ctx.moveTo(
+        straightLineStartRef.current.x,
+        straightLineStartRef.current.y,
+      );
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+
+      // Do NOT push points to linesRef yet
     } else {
+      // Freehand drawing
+      if (!lastPosRef.current) return;
+      const last = lastPosRef.current;
       const currentLine = linesRef.current[activeTab].slice(-1)[0];
       if (!currentLine) return;
 
@@ -145,6 +190,26 @@ const Whiteboard = () => {
   };
 
   const stopDrawing = () => {
+    if (isStraightLine && straightLineStartRef.current && lastPosRef.current) {
+      const start = straightLineStartRef.current;
+      const end = lastPosRef.current;
+
+      // Create a new line with only start and end points
+      const newLine: Line = {
+        points: [start, end],
+        color: currentColor,
+        width: lineWidth,
+      };
+
+      linesRef.current[activeTab].push(newLine);
+      undoStackRef.current[activeTab].push([...linesRef.current[activeTab]]);
+      redoStackRef.current[activeTab] = [];
+      redrawCanvas(activeTab); // permanent line
+      saveToStorage();
+
+      straightLineStartRef.current = null;
+    }
+
     lastPosRef.current = null;
   };
 
@@ -185,7 +250,6 @@ const Whiteboard = () => {
 
     // Draw lines
     linesRef.current[tabId].forEach((line) => drawLineSegment(line, ctx));
-
   };
 
   /* ─────────── Grid ─────────── */
@@ -258,7 +322,7 @@ const Whiteboard = () => {
   };
 
   const toggleEraser = () => {
-    isErasingRef.current = !isErasingRef.current;
+    setIsErasing((prev) => !prev)
   };
 
   /* ─────────── Render ─────────── */
@@ -275,13 +339,34 @@ const Whiteboard = () => {
           toggleGrid={toggleGrid}
           setLineColor={setCurrentColor}
           setLineWidth={setLineWidth}
-          isErasing={isErasingRef.current}
+          setIsStraightLine={setIsStraightLine}
+          isStraightLine={isStraightLine}
+          isErasing={isErasing}
+          setIsErasing={setIsErasing}
           handleActiveTabChange={(tab) => {
             setActiveTab(tab);
             redrawCanvas(tab);
           }}
         />
       </div>
+
+      {cursorPos && (
+        <div
+          className="pointer-events-none absolute rounded-full"
+          style={{
+            left: cursorPos.x,
+            top: cursorPos.y,
+            width: lineWidth,
+            height: lineWidth,
+            marginLeft: -lineWidth / 2,
+            marginTop: -lineWidth / 2,
+            backgroundColor: isErasing
+              ? "rgba(200,200,200,0.3)" // eraser
+              : currentColor,
+            border: "1px solid gray", // optional outline
+          }}
+        />
+      )}
 
       {/* Grid Canvases */}
       {TAB_IDS.map((tabId) => (
@@ -303,9 +388,9 @@ const Whiteboard = () => {
             tabId === activeTab ? "" : "hidden"
           }`}
           onMouseDown={startDrawing}
-          onMouseMove={draw}
+          onMouseMove={handleMouseMove}
           onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
+          onMouseLeave={handleMouseLeave}
           onTouchStart={startDrawing}
           onTouchMove={draw}
           onTouchEnd={stopDrawing}
